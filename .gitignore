@@ -1,2 +1,9 @@
-*.exe
-*.zip
+*
+
+!*.py
+!*.cpp
+!*.h
+!*.in
+!*.out
+!*.sh
+!*.txt
