@@ -21,6 +21,34 @@ void gen(string filename, int maxn, int maxc) {
     }
     fout.close();
 }
+void genCube(string filename, int maxn, int maxc) {
+    ofstream fout(filename);
+    int n = uniform_int_distribution<int>(1, cbrt(maxn))(rng);
+    vector<int> X(n), Y(n), Z(n);
+    for(int i = 0; i < n; i++) X[i] = uniform_int_distribution<int>(-maxc, maxc)(rng);
+    for(int i = 0; i < n; i++) Y[i] = uniform_int_distribution<int>(-maxc, maxc)(rng);
+    for(int i = 0; i < n; i++) Z[i] = uniform_int_distribution<int>(-maxc, maxc)(rng);
+    fout << n*n*n << '\n';
+    for(int i = 0; i < n; i++) for(int j = 0; j < n; j++) for(int k = 0; k < n; k++) fout << X[i] << ' ' << Y[j] << ' ' << Z[k] << '\n';
+    fout.close();
+}
+void specialGen(string filename, int a, int b, int maxo, int maxr) {
+    ofstream fout(filename);
+    fout << a+b << '\n';
+    for(int i = 0; i < a; i++) {
+        int x = uniform_int_distribution<int>(-maxr, maxr)(rng) - maxo;
+        int y = uniform_int_distribution<int>(-maxr, maxr)(rng) - maxo;
+        int z = uniform_int_distribution<int>(-maxr, maxr)(rng) - maxo;
+        fout << x << ' ' << y << ' ' << z << '\n';
+    }
+    for(int i = 0; i < b; i++) {
+        int x = uniform_int_distribution<int>(-maxr, maxr)(rng) + maxo;
+        int y = uniform_int_distribution<int>(-maxr, maxr)(rng) + maxo;
+        int z = uniform_int_distribution<int>(-maxr, maxr)(rng) + maxo;
+        fout << x << ' ' << y << ' ' << z << '\n';
+    }
+    fout.close();
+}
 signed main() {
     rng.seed(7122);
     /* rng.seed(chrono::steady_clock::now().time_since_epoch().count()); */
@@ -33,8 +61,16 @@ signed main() {
         gen(format("%02d.in", i), 5000, 100);
     for(int i = 20; i < 30; i++)
         gen(format("%02d.in", i), 5000, 100000);
-    for(int i = 0; i < 30; i++) {
+    for(int i = 30; i < 35; i++)
+        genCube(format("%02d.in", i), 5000, 100000);
+    specialGen("35.in", 4000, 1, 1000, 10);
+    specialGen("36.in", 4000, 80, 50000, 1000);
+    specialGen("37.in", 1, 2000, 100, 1000);
+    specialGen("38.in", 3000, 2000, 30000, 10000);
+    specialGen("39.in", 3000, 2000, 30000, 10000);
+    for(int i = 0; i < 40; i++) {
         string command = format("./sol <%02d.in >%02d.out", i, i);
-        system(command.c_str());
+        int code = system(command.c_str());
+        cerr << command << ' ' << " successfully ends with return value " << code << '\n';
     }
 }

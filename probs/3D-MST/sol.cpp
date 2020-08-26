@@ -59,9 +59,10 @@ void Prim() {
     cout << ans << '\n';
 }
 signed main(int argc, char **argv) {
-    TIME;
     ios_base::sync_with_stdio(0), cin.tie(0);
-    cin >> n;
-    for(int i = 0; i < n; i++) for(int c = 0; c < 3; c++) cin >> T[i][c];
+    assert(cin >> n);
+    for(int i = 0; i < n; i++) for(int c = 0; c < 3; c++) assert(cin >> T[i][c]);
+    TIME;
     Prim();
+    /* Kruskal(); */
 }
