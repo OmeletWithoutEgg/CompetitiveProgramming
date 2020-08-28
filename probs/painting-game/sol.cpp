@@ -63,9 +63,10 @@ signed main() {
         ans = (ans + *s.begin()) % D;
     }
     for(auto [t, _]: mp) add(t, 0, N);
-    ans = 1LL * ans * K % D;
+    ans = 1LL * ans * (K%D) % D;
     sort(piece.begin(), piece.end(), greater<>());
     for(auto [len, cnt]: piece) {
+        len %= D;
         if(cnt < K) {
             // K;
             int C = cnt & 1 ? (cnt%D) * ((2*K-cnt+1)/2%D) % D

@@ -9,9 +9,14 @@ int64_t gi(int64_t l, int64_t r){ return uniform_int_distribution<int64_t>(l, r)
 
 vector<int> primes {2, 3, 17, 14699, 65537, 880301, 104857601, 998244353, 1000000007, 1000000009 };
 int tot;
+template <typename ...T> string format(const char *s, T &&...args) {
+    static char buf[1 << 10];
+    sprintf(buf, s, args...);
+    return string(buf);
+}
 void gen(int subtask, int maxN, int maxT, int maxW, int64_t maxK) {
     if(subtask) {
-        string filename = to_string(++tot) + ".in";
+        string filename = format("%02d.in", tot++);
         freopen(filename.c_str(), "w", stdout);
     }
     int N = gi(1, maxN);
@@ -81,8 +86,8 @@ signed main(int argc, char **argv) {
     gen(7, 5e4, 100, 100, 1e12);
     gen(7, 5e5, 1e5, 1e5, 1e12);
     gen(7, 5e5, inf, inf, 1e12);
-    for(int i = 1; i <= tot; i++) {
-        string command = "sol < " + to_string(i) + ".in > " + to_string(i) + ".out";
+    for(int i = 0; i < tot; i++) {
+        string command = format("./sol <%02d.in >%02d.out", i, i);
         system(command.c_str());
         cerr << command << '\n';
         cerr << "Solution to No. " << i << " ok.\n";
@@ -94,7 +99,7 @@ signed main(int argc, char **argv) {
     freopen("sample-3.in", "w", stdout);
     gen(0, 10, 100, 100, 100);
     for(int i = 1; i <= 3; i++) {
-        string command = "sol < sample-" + to_string(i) + ".in > sample-" + to_string(i) + ".out";
+        string command = format("./sol <sample-%d.in >sample-%d.out", i, i);
         system(command.c_str());
         cerr << command << '\n';
         cerr << "Solution to sample No. " << i << " ok.\n";
