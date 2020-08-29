@@ -1,81 +1,104 @@
 #include <bits/stdc++.h>
 #define pb emplace_back
-#define debug(x) cerr<<#x<<" = "<<x<<'\n'
-#define int ll
 using namespace std;
 typedef long long ll;
-const int MOD = 1000000007;
+const int N = 100025, inf = 1e9;
 
-void fail() {
-    cout << -1 << '\n';
-    exit(0);
-}
-int fp(ll x, ll a, ll b, ll n) {
-    while(n) {
-        if(n&1) x = (a*x+b)%MOD;
-        //a(ax+b)+b
-        b = b*(a+1)%MOD;
-        a = a*a%MOD;
-        n >>= 1;
+struct LinkCutTree {
+    struct node {
+        int pa, ch[2];
+        ll a, b, val;
+        node(int p=0, int v=0) : pa(p), ch{0,0}, a(0), b(inf), val(v) {}
+    } T[N];
+    bool dir(int x) { return T[T[x].pa].ch[1] == x; }
+    bool isroot(int x) { return !x || T[T[x].pa].ch[dir(x)] != x; }
+    void rot(int x) {
+        int y = T[x].pa, z = T[y].pa, d = dir(x);
+        T[x].pa = z;
+        if(!isroot(y)) T[z].ch[dir(y)] = x;
+        if(T[x].ch[!d]) T[T[x].ch[!d]].pa = y;
+        T[y].ch[d] = T[x].ch[!d];
+        T[y].pa = x;
+        T[x].ch[!d] = y;
     }
-    return x;
-}
-int solve(vector<ll> v) {
-    //for(ll x: v) cout << x << ' '; cout << '\n';
-    for(ll x: v) if(x <= 0) fail();
-    if(v.size() == 2) {
-        if(v[0] == 1 && v[1] == 1) return 0;
-        if(v[0] == 0 || v[1] == 0) fail();
-        if(v[1] == 1)
-          return fp(0, 2, 2, v[0]-1);
-        if(v[0] == 1)
-          return fp(0, 2, 1, v[1]-1);
-              /*if(v[0] > v[1])
-            return (solve({v[0]-v[1], v[1]}) * 2 + 2) % MOD;
-        else
-            return (solve({v[0], v[1]-v[0]}) * 2 + 1) % MOD;*/
-        if(v[0] > v[1])
-            return fp(solve({v[0]%v[1], v[1]}), 2, 2, v[0]/v[1]);
-        else
-            return fp(solve({v[0], v[1]%v[0]}), 2, 1, v[1]/v[0]);
+    void upd(int x, ll a, ll b) {
+        T[x].a += a;
+        T[x].b = min(T[x].b + a, b);
     }
-    vector<ll> u;
-    if (v[0] > v[1]) {
-        if(v.size() == 3) {
-            ll k = v[1] == 1 ? v[0]-1 : v[0] / v[1];
-            return fp(solve({v[0]-k*v[1], v[1], v[2]-k*v[1]}), 2, 2, k);
+    void push(int x) {
+        if(!isroot(x)) push(T[x].pa);
+        for(int d: {0, 1}) if(T[x].ch[d]) upd(T[x].ch[d], T[x].a, T[x].b);
+    }
+    void splay(int x) {
+        push(x);
+        while(!isroot(x)) {
+            int y = T[x].pa;
+            if(!isroot(y))
+                rot(dir(x) ^ dir(y) ? x : y);
+            rot(x);
         }
-        u.pb(v[0]-v[1]);
-        for(int i = 1; i < v.size(); i+=2) u.pb(v[i]);
-        if(v.size() % 2 == 1) u.pb(v.back() - u.back());
-        for(int i = 2; i+1 < v.size(); i+=2) if(v[i-1]+v[i+1] != v[i]) fail();
-        return (solve(u) * 2 + 2) % MOD;
-    } else if(v[0] < v[1]) {
-        for(int i = 0; i < v.size(); i+=2) u.pb(v[i]);
-        if(v.size() % 2 == 0) u.pb(v.back() - u.back());
-        for(int i = 1; i+1 < v.size(); i+=2) if(v[i-1]+v[i+1] != v[i]) fail();
-        return (solve(u) * 2 + 1) % MOD;
-    } else {
-        if(v[0]!=1 || v[1]!=1) fail();
-        for(int i = 2; i < v.size(); i++) {
-            ll x = v[i>>1] + (~i&1) * (v[i-1>>1]);
-            if(v[i] != x) fail();
-        }
-        return 0;
     }
-}
+    int access(int x) {
+        int last = 0;
+        while(x) {
+            splay(x);
+            T[x].ch[1] = last;
+            last = x;
+            x = T[x].pa;
+        }
+        return last;
+    }
+    void modify(int x, int y, int a, int b) {
+        access(x);
+        int LCA = access(y);
+        splay(x);
+        if(x == LCA) {
+            upd(T[x].ch[1], a, b);
+        } else {
+            upd(T[LCA].ch[1], a, b);
+            upd(x, a, b);
+        }
+    }
+    ll eval(int x) {
+        splay(x);
+        return min(T[x].val + T[x].a, T[x].b);
+    }
+} lct;
+int eid[N];
 signed main () {
     ios_base::sync_with_stdio(0), cin.tie(0);
     int n;
     cin >> n;
-    vector<ll> v(n);
-    for(int i = 0; i < n; i++) cin >> v[i];
-    cout << solve(v) << '\n';
+    vector<vector<tuple<int,int,int>>> g(n+1); // cost, edgeid, toid
+    for(int i = 1; i < n; i++) {
+        int a, b, w;
+        cin >> a >> b >> w;
+        g[a].pb(w, i, b);
+        g[b].pb(w, i, a);
+    }
+    function<void(int, int)> dfs = [&](int i, int p) {
+        for(auto [c, id, j]: g[i]) {
+            if(j != p) {
+                lct.T[j] = LinkCutTree::node(i, c);
+                eid[id] = j;
+                dfs(j, i);
+            }
+        }
+    };
+    dfs(1, 0);
+    int q;
+    cin >> q;
+    while(q--) {
+        int t;
+        cin >> t;
+        if(t == 1) {
+            int x, y, a, b;
+            cin >> x >> y >> a >> b;
+            lct.modify(x, y, a, b);
+        } else if(t == 2) {
+            int id;
+            cin >> id;
+            cout << lct.eval(eid[id]) << '\n';
+        }
+    }
 }
-/*
-3
-100000000 1 100000000
-
-3
-1 1 2
-*/
