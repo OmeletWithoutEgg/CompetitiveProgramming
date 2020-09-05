@@ -1,5 +1,11 @@
 #include <bits/stdc++.h>
 #define pb emplace_back
+#define debug(args...) qqbx(#args, args)
+template <typename H, typename ...T> void qqbx(const char *s, const H &h, T&& ...args) {
+    for(; *s && *s != ','; ++s) if(*s != ' ') std::cerr << *s;
+    std::cerr << " = " << h << (sizeof...(T) ? ", " : "\n");
+    if constexpr(sizeof...(T)) qqbx(++s, args...);
+}
 using namespace std;
 typedef long long ll;
 const int N = 100025, inf = 1e9;
@@ -22,12 +28,16 @@ struct LinkCutTree {
         T[x].ch[!d] = y;
     }
     void upd(int x, ll a, ll b) {
+        T[x].val = min(T[x].val + a, b);
         T[x].a += a;
         T[x].b = min(T[x].b + a, b);
     }
     void push(int x) {
         if(!isroot(x)) push(T[x].pa);
+        if(T[x].a == 0 && T[x].b == inf) return;
         for(int d: {0, 1}) if(T[x].ch[d]) upd(T[x].ch[d], T[x].a, T[x].b);
+        T[x].a = 0;
+        T[x].b = inf;
     }
     void splay(int x) {
         push(x);
@@ -61,7 +71,7 @@ struct LinkCutTree {
     }
     ll eval(int x) {
         splay(x);
-        return min(T[x].val + T[x].a, T[x].b);
+        return T[x].val;
     }
 } lct;
 int eid[N];
@@ -98,7 +108,29 @@ signed main () {
         } else if(t == 2) {
             int id;
             cin >> id;
+            // --id / ++id ??
+            debug(eid[id]);
             cout << lct.eval(eid[id]) << '\n';
         }
     }
 }
+
+/*
+5
+1 5 3
+1 4 6
+4 2 3
+3 1 9
+4
+1 1 4 10 9
+1 5 3 4 2
+1 3 2 6 9
+2 3
+
+  *2   *8
+5 -- 1 -- 3
+     | *9
+     4
+     | *9
+     2
+*/
