@@ -53,6 +53,7 @@ constexpr inline ll modpow(ll e,ll p,ll m=MOD) { ll r=1; for(e%=m;p;p>>=1,e=e*e%
 typedef complex<int64_t> point;
 struct Segment {
     point S, L; // S + tL, 0 <= t < 1
+    Segment(point A, point B) : S(A), L(B-A) {}
     static bool valid(int64_t p, int64_t q) {
         if(q == 0) return p == 0;
         if(q < 0) q = -q, p = -p;
@@ -80,6 +81,32 @@ istream& operator>>(istream &I, point &p) {
     p = point(x, y);
     return I;
 }
+bool anyIntersect(const vector<Segment> &v) {
+    vector<tuple<int,int,bool>> evt;
+    for(int i = 0; i < n; i++) {
+        int l = v[i].S.real();
+        int r = v[i].S.real() + v[i].L.real();
+        evt.pb(l, i, true);
+        evt.pb(r, i, false);
+    }
+    sort(evt.begin(), evt.end());
+    for(auto [x, id, tp]: evt) {
+        if(tp) {
+            int y = v[id].S.imag();
+            if(tr.count(y)) return true;
+            auto it = tr.lower_bound(y);
+            if((it!=tr.end() && intersect(v[id], v[it->second])) ||
+               (it!=tr.begin() && intersect(v[prev(it)->second], v[id]))) return true;
+            tr[y] = id;
+        } else {
+            int y = v[id].S.imag();
+            auto it = tr.find(y);
+            if(it!=tr.begin() && next(it)!=tr.end() && intersect(v[prev(it)->second], v[next(it)->second])) return true;
+            tr.erase(it);
+        }
+    }
+    return false;
+}
 int n;
 void solve() {
     vector<Segment> seg;
@@ -90,8 +117,10 @@ void solve() {
         seg.pb(B, C);
         seg.pb(C, A);
     }
-    if(anyIntersect(seg)) return -1;
-    for(;
+    if(anyIntersect(seg)) {
+        cout << "ERROR\n";
+        return;
+    }
 }
 signed main() {
     ios_base::sync_with_stdio(0), cin.tie(0);
