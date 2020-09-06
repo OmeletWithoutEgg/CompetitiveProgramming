@@ -54,7 +54,7 @@ signed main() {
     /* rng.seed(chrono::steady_clock::now().time_since_epoch().count()); */
     ios_base::sync_with_stdio(0);
     for(int i = 0; i < 5; i++)
-        gen(format("%02d.in", i), 10, 10);
+        gen(format("%02d.in", i), 4, 10);
     for(int i = 5; i < 10; i++)
         gen(format("%02d.in", i), 100, 100000);
     for(int i = 10; i < 20; i++)
