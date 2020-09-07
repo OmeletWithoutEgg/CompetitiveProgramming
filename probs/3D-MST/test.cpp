@@ -27,5 +27,5 @@ void test(string filename) {
         cerr << "Fail.\n";
 }
 signed main() {
-    for(int i = 0; i < 40; i++) test(format("%02d.in", i));
+    for(int i = 0; i < 50; i++) test(format("%02d.in", i));
 }
