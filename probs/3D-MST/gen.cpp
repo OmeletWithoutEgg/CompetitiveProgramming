@@ -26,6 +26,21 @@ void gen(string filename, int maxn, int maxc) {
     }
     fout.close();
 }
+void genChain(string filename, int maxn, int maxc) {
+    ofstream fout(filename);
+    int n = uniform_int_distribution<int>(1, maxn)(rng);
+    vector<int> X(n);
+    set<int> s;
+    for(int i = 0; i < n; i++) {
+        do {
+            X[i] = uniform_int_distribution<int>(-maxc, maxc)(rng);
+        } while(s.count(X[i]));
+        s.insert(X[i]);
+    }
+    fout << n << '\n';
+    for(int i = 0; i < n; i++) fout << X[i] << ' ' << 0 << ' ' << 0 << '\n';
+    fout.close();
+}
 void genCube(string filename, int maxn, int maxc) {
     ofstream fout(filename);
     int n = uniform_int_distribution<int>(1, cbrt(maxn))(rng);
@@ -71,7 +86,12 @@ signed main() {
         gen(format("%02d.in", i), 4, 10);
     for(int i = 5; i < 10; i++)
         gen(format("%02d.in", i), 100, 100000);
-    for(int i = 10; i < 20; i++)
+    genChain("10.in", 50, 1000);
+    genChain("11.in", 500, 100000);
+    genChain("12.in", 5000, 30000);
+    genChain("13.in", 5000, 100000);
+    genChain("14.in", 5000, 100000);
+    for(int i = 15; i < 20; i++)
         gen(format("%02d.in", i), 5000, 300);
     for(int i = 20; i < 30; i++)
         gen(format("%02d.in", i), 5000, 100000);
