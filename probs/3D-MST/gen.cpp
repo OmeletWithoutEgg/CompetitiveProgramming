@@ -13,10 +13,15 @@ void gen(string filename, int maxn, int maxc) {
     ofstream fout(filename);
     int n = uniform_int_distribution<int>(1, maxn)(rng);
     fout << n << '\n';
+    set<tuple<int,int,int>> s;
     for(int i = 0; i < n; i++) {
-        int x = uniform_int_distribution<int>(-maxc, maxc)(rng);
-        int y = uniform_int_distribution<int>(-maxc, maxc)(rng);
-        int z = uniform_int_distribution<int>(-maxc, maxc)(rng);
+        int x, y, z;
+        do {
+            x = uniform_int_distribution<int>(-maxc, maxc)(rng);
+            y = uniform_int_distribution<int>(-maxc, maxc)(rng);
+            z = uniform_int_distribution<int>(-maxc, maxc)(rng);
+        } while(s.count({x,y,z}));
+        s.insert({x,y,z});
         fout << x << ' ' << y << ' ' << z << '\n';
     }
     fout.close();
@@ -35,16 +40,25 @@ void genCube(string filename, int maxn, int maxc) {
 void specialGen(string filename, int a, int b, int maxo, int maxr) {
     ofstream fout(filename);
     fout << a+b << '\n';
+    set<tuple<int,int,int>> s;
     for(int i = 0; i < a; i++) {
-        int x = uniform_int_distribution<int>(-maxr, maxr)(rng) - maxo;
-        int y = uniform_int_distribution<int>(-maxr, maxr)(rng) - maxo;
-        int z = uniform_int_distribution<int>(-maxr, maxr)(rng) - maxo;
+        int x, y, z;
+        do {
+            x = uniform_int_distribution<int>(-maxr, maxr)(rng) + maxo;
+            y = uniform_int_distribution<int>(-maxr, maxr)(rng) + maxo;
+            z = uniform_int_distribution<int>(-maxr, maxr)(rng) + maxo;
+        } while(s.count({x,y,z}));
+        s.insert({x,y,z});
         fout << x << ' ' << y << ' ' << z << '\n';
     }
     for(int i = 0; i < b; i++) {
-        int x = uniform_int_distribution<int>(-maxr, maxr)(rng) + maxo;
-        int y = uniform_int_distribution<int>(-maxr, maxr)(rng) + maxo;
-        int z = uniform_int_distribution<int>(-maxr, maxr)(rng) + maxo;
+        int x, y, z;
+        do {
+            x = uniform_int_distribution<int>(-maxr, maxr)(rng) - maxo;
+            y = uniform_int_distribution<int>(-maxr, maxr)(rng) - maxo;
+            z = uniform_int_distribution<int>(-maxr, maxr)(rng) - maxo;
+        } while(s.count({x,y,z}));
+        s.insert({x,y,z});
         fout << x << ' ' << y << ' ' << z << '\n';
     }
     fout.close();
@@ -58,7 +72,7 @@ signed main() {
     for(int i = 5; i < 10; i++)
         gen(format("%02d.in", i), 100, 100000);
     for(int i = 10; i < 20; i++)
-        gen(format("%02d.in", i), 5000, 100);
+        gen(format("%02d.in", i), 5000, 300);
     for(int i = 20; i < 30; i++)
         gen(format("%02d.in", i), 5000, 100000);
     for(int i = 30; i < 35; i++)
