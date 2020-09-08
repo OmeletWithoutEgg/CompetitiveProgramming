@@ -85,12 +85,12 @@ signed main() {
     freopen("sample-3.in", "w", stdout);
     gen(0, 3, 10, 1);
     for(int i = 0; i < tot; i++) {
-        string command = format("sol < %02d.in > %02d.out", i, i);
+        string command = format("./sol < %02d.in > %02d.out", i, i);
         cerr << command << '\n';
         system(command.c_str());
     }
     for(int i = 1; i <= 3; i++) {
-        string command = format("sol < sample-%d.in > sample-%d.out", i, i);
+        string command = format("./sol < sample-%d.in > sample-%d.out", i, i);
         cerr << command << '\n';
         system(command.c_str());
     }
