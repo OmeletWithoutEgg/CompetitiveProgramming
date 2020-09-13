@@ -23,7 +23,10 @@ void gen(string filename, int minn, int maxn, int maxk) {
         B[id] = 1;
     }
     for(int i = 0; i < O; i++) {
-        int id = uniform_int_distribution<int>(0, n*m-1)(rng);
+        int id;
+        do {
+            id = uniform_int_distribution<int>(0, n*m-1)(rng);
+        } while(id == 0 || id == n*m-1);
         B[id] = -1;
     }
     fout << n << ' ' << m << '\n';
