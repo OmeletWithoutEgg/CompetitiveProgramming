@@ -1,4 +1,5 @@
 #include <bits/stdc++.h>
+#define safe std::cerr<<__PRETTY_FUNCTION__<<" line "<<__LINE__<<" safe\n"
 #define pb emplace_back
 
 using namespace std;
@@ -15,50 +16,51 @@ bool dice(int x) {
     return uniform_int_distribution<int>(0, x-1)(rng) == 0;
 }
 // random, lonely island, all odd, all even
-vector<pair<int,int>> genGraph(int A, int B, int K) {
-    // i * B + j -> (i, j)
+vector<pair<int,int>> genGraph(int A, int B, int lim) {
+    int type = uniform_int_distribution<int>(0, 2)(rng);
+    // complete, cycles, random(sparse), random(dense)
+    cerr << "type = " << type << '\n';
     vector<pair<int,int>> res;
-    vector<int> eid(A*B);
-    iota(eid.begin(), eid.end(), 0);
-    shuffle(eid.begin(), eid.end(), rng);
-    for(int i = 0; i < K; i++) {
-        int id = eid[i];
-        int a = id / B, b = id % B;
-        ++a, ++b;
-        res.pb(a, b);
+    if(type == 0) {
+        for(int i = 0; i < A; i++) for(int j = 0; j < B; j++) res.pb(i, j);
+    } else if(type == 1) {
+        // generate cycles;
+        int now = 0;
+        while(now < A && now < B) {
+            int c = uniform_int_distribution<int>(1, min({A-now, B-now, int(pow(A+B, 0.6))}))(rng);
+            for(int i = 0; i < c; i++) {
+                int j = i ? i-1 : c-1;
+                res.pb(now+i, now+i);
+                res.pb(now+i, now+j);
+            }
+            now += c;
+        }
+    } else {
+        const int n = A+B;
+        const double pr[] = {0.7, 1, 1.2, 0.7 * log(n), log(n), 1.2*log(n), 0.5 * n, 0.8 * n};
+        const double p = pr[uniform_int_distribution<int>(0, sizeof(pr) / sizeof(double) - 1)(rng)] / n;
+        cerr << "p = " << p << '\n';
+        for(int i = 0; i < A; i++) for(int j = 0; j < B; j++) if(bernoulli_distribution(p)(rng)) res.pb(i, j);
     }
+    vector<int> pa(A), pb(B);
+    iota(pa.begin(), pa.end(), 1), iota(pb.begin(), pb.end(), 1);
+    shuffle(pa.begin(), pa.end(), rng), shuffle(pb.begin(), pb.end(), rng);
+    for(auto &[a, b]: res) a = pa[a], b = pb[b];
     return res;
 }
 const int maxc = 948712222;
 void gen(string filename, int minn, int maxn, int maxk) {
-    ofstream fout(filename);
     int A = uniform_int_distribution<int>(minn, maxn)(rng);
     int B = uniform_int_distribution<int>(minn, maxn)(rng);
     int S = uniform_int_distribution<int>(1, maxc)(rng);
     int M = uniform_int_distribution<int>(1, maxc)(rng);
-    int K = (A*B%2==1 && dice(3)
-                ? A*B
-                : (dice(3) ? uniform_int_distribution<int>(1, min({maxk, A+B, A*B}))(rng)
-                           : uniform_int_distribution<int>(1, min(maxk, A*B))(rng)));
+    vector<pair<int,int>> edges = genGraph(A, B, maxk);
+    int K = edges.size();
+    ofstream fout(filename);
     cerr << A << ' ' << B << ' ' << K << '\n';
     fout << A << ' ' << B << ' ' << S << ' ' << M << ' ' << K << '\n';
-    vector<pair<int,int>> edges = genGraph(A, B, K);
     for(auto [a, b]: edges) fout << a << ' ' << b << ' ' << uniform_int_distribution<int>(1, maxc)(rng) << '\n';
     fout.close();
-}
-void genDouble(string filename, int minn, int maxn, int maxk) {
-    int n = uniform_int_distribution<int>((minn+1)/2, maxn/2)(rng);
-    int m = uniform_int_distribution<int>(1, min(maxk/2, n*(n-1)/2))(rng);
-    vector<pair<int,int>> E;
-    for(int i = 0; i < n; i++) for(int j = 0; j < i; j++) E.pb(i, j);
-    shuffle(E.begin(), E.end(), rng);
-    for(int i = 0; i < m; i++) {
-        auto [a, b] = E[i];
-        if(dice(2)) swap(a, b);
-        res.pb(a, b);
-        res.pb(a+n, b);
-        res.pb(a, b+m);
-    }
 }
 signed main() {
     for(int i = 0; i < 5; i++)
@@ -77,8 +79,11 @@ signed main() {
     }
     for(int i = 0; i < 40; i++) {
         string command = format("./sol <%02d.in >%02d.out", i, i);
+        /* string command = format("./sol <%02d.in >%02d.out && ./bad <%02d.in >%02d-T.out && diff %02d.out %02d-T.out", i, i, i, i, i, i); */
         int code = system(command.c_str());
         cerr << format("testdata = %d, code = %d", i, code) << '\n';
     }
+    /* int code = system("rm *-T.out"); */
+    /* cerr << "code = " << code << '\n'; */
 }
 
