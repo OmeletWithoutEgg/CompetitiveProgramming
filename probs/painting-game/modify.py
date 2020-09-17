@@ -6,7 +6,7 @@ from getpass import *
 
 # config
 
-upload_input = True # if you want to update the testdata files
+upload_input = True
 upload_output = True
 input_suffix = '.in'
 output_suffix = '.out'

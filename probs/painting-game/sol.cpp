@@ -3,6 +3,22 @@
 using namespace std;
 const int maxn = 500025;
 
+#define TIME Timer __timer(__PRETTY_FUNCTION__)
+class Timer {
+private:
+    std::string title;
+    chrono::high_resolution_clock::time_point start;
+public:
+    Timer(std::string t) :
+        title(t), start(chrono::high_resolution_clock::now()) {}
+    ~Timer() {
+        auto finish = chrono::high_resolution_clock::now();
+        auto duration = chrono::duration_cast<chrono::microseconds>(finish - start).count();
+        double ms = double(duration) * 0.001;
+        std::cerr << "Timer: " << title << " takes " << ms << " ms to finish.\n";
+    }
+};
+
 int N, M, T, D;
 int w[maxn];
 int64_t K;
@@ -17,6 +33,7 @@ void add(int x, int d, int i) {
     last = i;
 }
 signed main() {
+    TIME;
     ios_base::sync_with_stdio(0), cin.tie(0);
     cin >> N >> M >> K >> T >> D;
     for(int i = 0; i < N; i++) cin >> w[i];
@@ -80,6 +97,10 @@ signed main() {
             K = 0;
             break;
         }
+    }
+    cerr << N << ' ' << M << ' ' << D << '\n';
+    if(K != 0) {
+        cerr << "K = " << K << '\n';
     }
     cout << ans << '\n';
 }
