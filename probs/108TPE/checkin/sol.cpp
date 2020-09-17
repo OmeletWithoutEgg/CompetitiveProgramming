@@ -47,17 +47,23 @@ signed main() {
     }
     int n = B+A;
     int ans = 0;
-    bool odd=true, even=true, lone=false;
+    /* bool odd=true, even=true; */
+    bool lone=false;
+    int odd=0, even=0;
+    int CC = 0;
     for(int i = 1; i <= n; i++) {
         if(g[i].size()==0) lone=true;
-        else if(g[i].size() % 2 == 0) odd=false;
-        else even=false;
+        /* else if(g[i].size() % 2 == 0) odd=false; */
+        /* else even=false; */
         if(vis[i] || g[i].size() == 0) continue;
+        ++CC;
         cnt = 0;
         dfs(i);
+        if(cnt) ++odd;
+        else ++even;
         assert(cnt % 2 == 0);
         ans += max(1, cnt/2);
     }
-    debug(odd, even, lone);
+    debug(odd, even, lone, CC);
     cout << ans << '\n';
 }

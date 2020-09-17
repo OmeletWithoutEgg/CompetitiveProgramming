@@ -29,7 +29,7 @@ vector<pair<int,int>> genGraph(int A, int B, int K) {
     }
     return res;
 }
-const int maxc = 9487122;
+const int maxc = 948712222;
 void gen(string filename, int minn, int maxn, int maxk) {
     ofstream fout(filename);
     int A = uniform_int_distribution<int>(minn, maxn)(rng);
@@ -45,6 +45,20 @@ void gen(string filename, int minn, int maxn, int maxk) {
     vector<pair<int,int>> edges = genGraph(A, B, K);
     for(auto [a, b]: edges) fout << a << ' ' << b << ' ' << uniform_int_distribution<int>(1, maxc)(rng) << '\n';
     fout.close();
+}
+void genDouble(string filename, int minn, int maxn, int maxk) {
+    int n = uniform_int_distribution<int>((minn+1)/2, maxn/2)(rng);
+    int m = uniform_int_distribution<int>(1, min(maxk/2, n*(n-1)/2))(rng);
+    vector<pair<int,int>> E;
+    for(int i = 0; i < n; i++) for(int j = 0; j < i; j++) E.pb(i, j);
+    shuffle(E.begin(), E.end(), rng);
+    for(int i = 0; i < m; i++) {
+        auto [a, b] = E[i];
+        if(dice(2)) swap(a, b);
+        res.pb(a, b);
+        res.pb(a+n, b);
+        res.pb(a, b+m);
+    }
 }
 signed main() {
     for(int i = 0; i < 5; i++)
