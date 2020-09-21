@@ -15,11 +15,11 @@
 #ifdef local
 #include <bits/extc++.h>
 #define safe std::cerr<<__PRETTY_FUNCTION__<<" line "<<__LINE__<<" safe\n"
-#define debug(...) qqbx(#__VA_ARGS__, __VA_ARGS__)
-template <typename H, typename ...T> constexpr void qqbx(const char *s, const H &h, T &&...args) {
-    for(; *s && *s != ','; ++s) if(*s != ' ') std::cerr << *s;
-    std::cerr << " = " << h << (sizeof...(T) ? ", " : "\n");
-    if constexpr(sizeof...(T)) qqbx(++s, args...);
+#define debug(args...) qqbx(#args, args)
+template <typename ...T> void qqbx(const char *s, T ...args) {
+    std::cerr << "\033[1;32m" << '(' << s << ')' << " = " << '(';
+    constexpr int size = sizeof...(T);
+    int cnt = size, dummy[size] = { (std::cerr << args << (--cnt ? ", " : ")\033[0m\n"), 0)... };
 }
 #else
 #pragma GCC optimize("Ofast")
