@@ -54,15 +54,52 @@ constexpr inline ll modpow(ll e,ll p,ll m=MOD) { ll r=1; for(e%=m;p;p>>=1,e=e*e%
 int n, m;
 int l[N], r[N];
 int a[N], b[N];
+int cnt[N];
+ll pre[N][45];
+ll fr[N] = {1}, ifr[N] = {1}, inv[N] = {0, 1};
+ll choose(int n, int k) {
+    if(k < 0 || n < k) return 0;
+    return fr[n] * ifr[n-k] % MOD * ifr[k] % MOD;
+}
 signed main() {
+    for(int i = 2; i < N; i++) inv[i] = (MOD - MOD / i) * inv[MOD % i] % MOD;
+    for(int i = 1; i < N; i++) fr[i] = fr[i-1] * i % MOD;
+    for(int i = 1; i < N; i++) ifr[i] = ifr[i-1] * inv[i] % MOD;
     ios_base::sync_with_stdio(0), cin.tie(0);
     cin >> n >> m;
-    for(int i = 0; i < n; i++) cin >> l[i] >> r[i];
+    for(int i = 0; i < n; i++) {
+        cin >> l[i] >> r[i];
+        ++cnt[l[i]];
+        --cnt[r[i]+1];
+    }
+    for(int i = 1; i <= n; i++) cnt[i] += cnt[i-1];
+    /* for(int i = 1; i <= n; i++) cerr << cnt[i] << (i==n ? '\n' : ' '); */
+    for(int i = 1; i <= n; i++) {
+        for(int k = 0; k <= m*2; k++)
+            pre[i][k] = (pre[i-1][k] + choose(cnt[i]-k, i-k)) % MOD;
+    }
     for(int i = 0; i < m; i++) {
         cin >> a[i] >> b[i];
         --a[i], --b[i];
     }
+    // ans = \sum C(cnt[i], i), cnt[i] can be modified?
+    ll ans = 0;
     for(int s = 0; s < (1<<m); s++) {
-        int d = __builtin_popcount(s) & 1 ? -1 : 1;
+        int L = 1, R = n;
+        set<int> S;
+        for(int i = 0; i < m; i++) if(s >> i & 1) {
+            L = max({L, l[a[i]], l[b[i]]});
+            R = min({R, r[a[i]], r[b[i]]});
+            S.insert(a[i]);
+            S.insert(b[i]);
+        }
+        int k = S.size();
+        int d = __builtin_popcount(s) & 1 ? MOD-1 : 1;
+        if(L <= R) {
+            ll p = pre[R][k] - pre[L-1][k];
+            debug(p, d, k, L, R);
+            ans = (ans + (pre[R][k] - pre[L-1][k] + MOD) * d) % MOD;
+        }
     }
+    cout << ans << '\n';
 }
