@@ -47,11 +47,26 @@ template <typename T> using max_heap = std::priority_queue<T,vector<T>,less<T> >
 template <typename T> using min_heap = std::priority_queue<T,vector<T>,greater<T> >;
 template <typename T> using rbt = tree<T,null_type,less<T>,rb_tree_tag,tree_order_statistics_node_update>;
 constexpr ld PI = acos(-1), eps = 1e-7;
-constexpr ll N = 85, INF = 1e18, MOD = 1000000007, K = 14699, inf = 1e9;
+constexpr ll N = 85, INF = 1e18, MOD = 1000000007, K = 14699, inf = 1e6;
 constexpr inline ll cdiv(ll x, ll m) { return x/m + ((x<0 ^ m>0) && (x%m)); } // ceiling divide
 constexpr inline ll modpow(ll e,ll p,ll m=MOD) { ll r=1; for(e%=m;p;p>>=1,e=e*e%m) if(p&1) r=r*e%m; return r; }
 
-int dp[2][N][N*N][N];
+void ins(deque<pair<int,int>> &dq, pair<int,int> L) {
+    auto check = [](pair<int,int> A, pair<int,int> B, pair<int,int> C) -> bool {
+        // intersect(A, B) >= intersect(B, C)
+        return (A.second - B.second) * (C.first - B.first) >= (B.second - C.second) * (B.first - A.first);
+    };
+    while(dq.size() >= 2 && check(dq[dq.size()-2], dq[dq.size()-1], L)) dq.pop_back();
+    dq.push_back(L);
+}
+int query(deque<pair<int,int>> &dq, int x) {
+    if(dq.empty()) return -inf;
+    auto f = [x](pair<int,int> L) { return L.first * x + L.second; };
+    while(dq.size() >= 2 && f(dq[0]) <= f(dq[1])) dq.pop_front();
+    return f(dq[0]);
+}
+deque<pair<int,int>> dq[N][N*N];
+int ans[N*N];
 int a[N], pos[N];
 signed main() {
     ios_base::sync_with_stdio(0), cin.tie(0);
@@ -68,32 +83,24 @@ signed main() {
             pos[j++] = i;
         }
     }
-    for(int j = 0; j <= one; j++) for(int k = 0; k <= tot; k++) for(int last = 0; last <= n; last++) dp[0][j][k][last] = -inf;
-    dp[0][0][0][0] = 0;
+    ins(dq[0][0], {0, 0});
     for(int i = 1; i <= n; i++) {
-        auto &nxt = dp[i&1];
-        auto &DP = dp[~i&1];
-        for(int j = 0; j <= one; j++) {
-            for(int k = 0; k <= tot; k++) {
-                for(int last = 0; last <= n; last++) nxt[j][k][last] = -inf;
-                for(int last = 0; last < i; last++) {
-                    nxt[j][k][last] = DP[j][k][last] + (last - j);
-                }
-                if(j > 0 && k - abs(i-pos[j]) >= 0) {
-                    nxt[j][k][i] = -inf;
-                    for(int last = 0; last < i; last++)
-                        nxt[j][k][i] = max(nxt[j][k][i], DP[j-1][k - abs(i - pos[j])][last]);
+        for(int o = 1; o <= one; o++) {
+            for(int k = abs(i-pos[o]); k <= tot; k++) {
+                /* for(int j = 0; j < i; j++) { */
+                /*     dp[o][k][i] = max(dp[o][k][i], dp[o-1][k - abs(i-pos[o])][j] + (j-o+1) * (i-j-1)); */
+                /*     // (j-(o-1)) * ((i-1)-j) = j*(i-1+o-1) - (o-1)*(i-1) - j*j */
+                /* } */
+                int dp = query(dq[o-1][k-abs(i-pos[o])], (i-1+o-1)) - (o-1)*(i-1);
+                ins(dq[o][k], {i, dp - i*i});
+                if(o == one) {
+                    ans[k] = max(ans[k], dp + (i-o) * (n-i));
                 }
             }
         }
     }
-    int mx = 0;
-    for(int k = 0; k <= tot; k++) {
-        for(int last = 0; last <= n; last++) {
-            mx = max(mx, dp[n & 1][one][k][last]);
-        }
-        cout << mx << (k == tot ? '\n' : ' ');
-    }
+    for(int i = 1; i <= tot; i++) ans[i] = max(ans[i], ans[i-1]);
+    for(int i = 0; i <= tot; i++) cout << ans[i] << (i == tot ? '\n' : ' ');
     /*
      * dp[i][j][k][last] = max(dp[i-1][j][k][last] + (last-j), dp[i-1][j-1][k - dist(last, i)][last]);
      * dp[i][j][c] = max(dp[i-1][j][c] + (i-j), max{dp[i-1][j'][c-1]})
