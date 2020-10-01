@@ -1,5 +1,20 @@
 #include <bits/stdc++.h>
 #define debug(x) cerr<<#x<<" = "<<x<<'\n'
+#define TIME Timer __timer(__PRETTY_FUNCTION__)
+class Timer {
+private:
+    std::string title;
+    std::chrono::high_resolution_clock::time_point start;
+public:
+    Timer(std::string t) :
+        title(t), start(std::chrono::high_resolution_clock::now()) {}
+    ~Timer() {
+        auto finish = std::chrono::high_resolution_clock::now();
+        auto duration = std::chrono::duration_cast<std::chrono::microseconds>(finish - start).count();
+        double ms = double(duration) * 0.001;
+        std::cerr << "Timer: " << title << " takes " << ms << " ms to finish.\n";
+    }
+};
 
 using namespace std;
 const int N = 400025;
@@ -39,7 +54,7 @@ struct SuffixArray {
         vector<bool> cnt(k+1);
         deque<pair<int,int>> dq;
         for(int i = 0, j = 0; i < n; i++) {
-            while(cnt[block[sa[i]]]) {
+            while(cnt[block[sa[i]]] || cnt[k]) {
                 cnt[block[sa[j++]]] = false;
                 if(dq.size() && dq.front().second < j) dq.pop_front();
             }
@@ -58,6 +73,7 @@ struct SuffixArray {
     }
 } SA;
 signed main() {
+    TIME;
     ios_base::sync_with_stdio(0), cin.tie(0);
     /* string t; */
     /* cin >> t; */
@@ -75,5 +91,11 @@ signed main() {
         if(i != n-1) T += '$', block[p++] = n;
     }
     SA.build(T);
-    cout << SA.solve(n, block) << '\n';
+    string ans = SA.solve(n, block);
+    cout << ans << '\n';
+    cerr << ans.size() << '\n';
+    if(ans.size() > 256)
+        cerr << ans.substr(0, 256) << " ...\n";
+    else
+        cerr << ans << '\n';
 }

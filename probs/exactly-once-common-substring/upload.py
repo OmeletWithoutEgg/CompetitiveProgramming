@@ -12,8 +12,8 @@ output_suffix = '.out'
 input_prefix = ''
 output_prefix = ''
 filename_format = '%s%02d%s' # % (prefix, id, suffix)
-time_limit = '1000'
-memory_limit = '262144'
+time_limit = '2000'
+memory_limit = '524288'
 
 # end config
 
