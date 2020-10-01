@@ -17,9 +17,9 @@
 #define safe std::cerr<<__PRETTY_FUNCTION__<<" line "<<__LINE__<<" safe\n"
 #define debug(args...) qqbx(#args, args)
 template <typename ...T> void qqbx(const char *s, T ...args) {
-    std::cerr << "\033[1;32m" << '(' << s << ')' << " = " << '(';
-    constexpr int size = sizeof...(T);
-    int cnt = size, dummy[size] = { (std::cerr << args << (--cnt ? ", " : ")\033[0m\n"), 0)... };
+    int cnt = sizeof...(T);
+    std::cerr << "\033[1;32m(" << s << ") = (";
+    ( (std::cerr << args << (--cnt ? ", " : ")\033[0m\n")) , ... , void() );
 }
 #else
 #pragma GCC optimize("Ofast")

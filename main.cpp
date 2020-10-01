@@ -17,9 +17,9 @@
 #define safe std::cerr<<__PRETTY_FUNCTION__<<" line "<<__LINE__<<" safe\n"
 #define debug(args...) qqbx(#args, args)
 template <typename ...T> void qqbx(const char *s, T ...args) {
-    std::cerr << "\033[1;32m" << '(' << s << ')' << " = " << '(';
-    constexpr int size = sizeof...(T);
-    int cnt = size, dummy[size] = { (std::cerr << args << (--cnt ? ", " : ")\033[0m\n"), 0)... };
+    int cnt = sizeof...(T);
+    std::cerr << "\033[1;32m(" << s << ") = (";
+    ( (std::cerr << args << (--cnt ? ", " : ")\033[0m\n")) , ... , void() );
 }
 #else
 #pragma GCC optimize("Ofast")
@@ -47,27 +47,10 @@ template <typename T> using max_heap = std::priority_queue<T,vector<T>,less<T> >
 template <typename T> using min_heap = std::priority_queue<T,vector<T>,greater<T> >;
 template <typename T> using rbt = tree<T,null_type,less<T>,rb_tree_tag,tree_order_statistics_node_update>;
 constexpr ld PI = acos(-1), eps = 1e-7;
-constexpr ll N = 200025, INF = 1e18, MOD = 1000000007, K = 14699, inf = 1e9;
+constexpr ll N = 1000025, INF = 1e18, MOD = 1000000007, K = 14699, inf = 1e9;
 constexpr inline ll cdiv(ll x, ll m) { return x/m + ((x<0 ^ m>0) && (x%m)); } // ceiling divide
 constexpr inline ll modpow(ll e,ll p,ll m=MOD) { ll r=1; for(e%=m;p;p>>=1,e=e*e%m) if(p&1) r=r*e%m; return r; }
 
 signed main() {
     ios_base::sync_with_stdio(0), cin.tie(0);
-    int n;
-    cin >> n;
-    vector<vector<int>> g(n);
-    for(int i = 1; i < n; i++) {
-        int a, b;
-        cin >> a >> b;
-        --a, --b;
-        g[a].pb(b), g[b].pb(a);
-    }
-    vector<int> sz(n, 1);
-    function<void(int,int)> dfs = [&dfs, &g, &sz](int i, int p) -> void {
-        for(int j: g[i]) if(j != p) {
-            dfs(j, i);
-            sz[i] += sz[j];
-        }
-    };
-    dfs(0, -1);
 }
