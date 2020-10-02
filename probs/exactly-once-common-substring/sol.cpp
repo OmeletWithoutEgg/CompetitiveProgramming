@@ -93,9 +93,9 @@ signed main() {
     SA.build(T);
     string ans = SA.solve(n, block);
     cout << ans << '\n';
-    cerr << ans.size() << '\n';
-    if(ans.size() > 256)
-        cerr << ans.substr(0, 256) << " ...\n";
-    else
-        cerr << ans << '\n';
+    debug(ans.size());
+    /* if(ans.size() > 256) */
+    /*     cerr << ans.substr(0, 256) << " ...\n"; */
+    /* else */
+    /*     cerr << ans << '\n'; */
 }
