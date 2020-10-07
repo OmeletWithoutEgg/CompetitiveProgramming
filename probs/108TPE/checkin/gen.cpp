@@ -56,9 +56,12 @@ void gen(string filename, int minn, int maxn, int maxk) {
     int M = uniform_int_distribution<int>(1, maxc)(rng);
     vector<pair<int,int>> edges = genGraph(A, B, maxk);
     int K = edges.size();
+    bool GG = K == 0;
+    if(GG) K = 1;
     ofstream fout(filename);
     cerr << A << ' ' << B << ' ' << K << '\n';
     fout << A << ' ' << B << ' ' << S << ' ' << M << ' ' << K << '\n';
+    if(GG) fout << 1 << ' ' << 1 << ' ' << 7122 << '\n';
     for(auto [a, b]: edges) fout << a << ' ' << b << ' ' << uniform_int_distribution<int>(1, maxc)(rng) << '\n';
     fout.close();
 }
