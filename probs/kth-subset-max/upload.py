@@ -12,8 +12,8 @@ output_suffix = '.out'
 input_prefix = ''
 output_prefix = ''
 filename_format = '%s%02d%s' # % (prefix, id, suffix)
-time_limit = '1000'
-memory_limit = '262144'
+time_limit = '2000'
+memory_limit = '524288'
 
 # end config
 
@@ -25,7 +25,7 @@ def login():
     print('logging in...')
     global session
     rel = session.get('https://tioj.ck.tp.edu.tw/users/sign_in')
-    soup = BeautifulSoup(rel.text, "html.parser")
+    soup = BeautifulSoup(rel.text, 'html.parser')
     inputs = soup.find('form').find_all('input')
     rel = session.post('https://tioj.ck.tp.edu.tw/users/sign_in', data = {
         inputs[0].attrs['name']: inputs[0].attrs['value'],
@@ -48,7 +48,7 @@ sign_up_post_url = 'https://tioj.ck.tp.edu.tw/problems/%s/testdata' % problem_id
 for i in range(num_start, num_end + 1):
     print('processing %d...' % i)
     rel = session.get(sign_up_get_url)
-    soup = BeautifulSoup(rel.text, "html.parser")
+    soup = BeautifulSoup(rel.text, 'html.parser')
     inputs = soup.find('form').find_all('input')
 
     rel = session.post(sign_up_post_url, data = {
