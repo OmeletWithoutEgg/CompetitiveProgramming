@@ -36,10 +36,10 @@ signed main() {
     for(int i = 0; i < n; i++) cin >> v[i];
     for(int i = 0; i < n; i++) for(int j = 0; j < n; j++) cin >> A[j][i];
     // Ax = v, solve x
-    bool swapped = false;
+    int swapped = 0;
     for(int k = 0; k < n; k++) {
         if(A[k][k] == 0) {
-            swapped = true;
+            swapped += 1;
             int t = k;
             for(int i = k+1; i < n; i++) if(A[i][k] > A[t][k]) t = i;
             for(int j = 0; j < n; j++) swap(A[k][j], A[t][j]);

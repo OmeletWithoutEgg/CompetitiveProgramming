@@ -86,7 +86,7 @@ void specialGen(string filename, int n) {
     fout << n << ' ' << mod << '\n';
     for(int i = 0; i < n; i++) fout << uniform_int_distribution<int>(0, mod-1)(rng) << (i+1==n ? '\n' : ' ');
     for(int i = 0; i < n; i++) for(int j = 0; j < n; j++) {
-        if(i==p[j] || uniform_int_distribution<int>(0, n-1)(rng) == 0) {
+        if(i==p[j] || uniform_int_distribution<int>(0, n*2-1)(rng) == 0) {
             fout << uniform_int_distribution<int>(1, mod-1)(rng) << (j+1==n ? '\n' : ' ');
         } else {
             fout << 0 << (j+1==n ? '\n' : ' ');
@@ -104,12 +104,17 @@ signed main() {
         gen(format("%02d.in", i), 1, 100);
     gen("20.in", 100, 100);
     gen("21.in", 100, 100);
-    specialGen("22.in", 3);
+    specialGen("08.in", 3);
     specialGen("23.in", 97);
     specialGen("24.in", 100);
-    const int samples[3] = {0, 1, 6};
+    const int samples[3] = {0, 1, 6}, special[2] = {4, 6};
     for(int i = 0; i < 3; i++) {
         string command = format("cat sample-%d.in >%02d.in", i+1, samples[i]);
+        int code = system(command.c_str());
+        cerr << format("code = %d", code) << '\n';
+    }
+    for(int i = 0; i < 2; i++) {
+        string command = format("cat special-%d.in >%02d.in", i+1, special[i]);
         int code = system(command.c_str());
         cerr << format("code = %d", code) << '\n';
     }
