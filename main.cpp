@@ -60,6 +60,45 @@ constexpr ll N = 100025, INF = 1e18, MOD = 998244353, K = 19, inf = 1e7;
 constexpr inline ll cdiv(ll x, ll m) { return x/m + (x%m ? (x<0) ^ (m>0) : 0); } // ceiling divide
 constexpr inline ll modpow(ll e,ll p,ll m=MOD) { ll r=1; for(e%=m;p;p>>=1,e=e*e%m) if(p&1) r=r*e%m; return r; }
 
+void FFT(vector<int> &F, bool inv) {
+    int n = F.size();
+    for(int i = 0, j = 0; i < n; i++) {
+        if(i < j) swap(F[i], F[j]);
+        for(int k = n>>1; (j^=k) < k; k>>=1);
+    }
+    for(int s = 1; s < n; s <<= 1) {
+        int omega = modpow(3, (MOD-1) / (s*2));
+        if(inv) omega = modpow(omega, MOD-2);
+        for(int i = 0; i < n; i += s*2) {
+            ll now = 1;
+            for(int j = 0; j < s; j++) {
+                int a = F[i+j], b = F[i+j+s] * now % MOD;
+                F[i+j] = (a+b < MOD ? a+b : a+b-MOD);
+                F[i+j+s] = (a-b < 0 ? a-b+MOD : a-b);
+                now = now * omega % MOD;
+            }
+        }
+    }
+    if(inv) {
+        ll in = modpow(n, MOD-2);
+        for(int i = 0; i < n; i++) F[i] = F[i] * in % MOD;
+    }
+}
 signed main() {
     ios_base::sync_with_stdio(0), cin.tie(0);
+    int n, k;
+    cin >> n >> k;
+    int sz = 1 << __lg(n*5+1) + 1;
+    vector<int> cnt(sz);
+    for(int i = 0; i < k; i++) {
+        int d;
+        cin >> d;
+        ++cnt[d];
+    }
+    FFT(cnt, false);
+    for(int i = 0; i < sz; i++) cnt[i] = modpow(cnt[i], n/2);
+    FFT(cnt, true);
+    int ans = 0;
+    for(int i = 0; i < sz; i++) ans = (ans + 1LL * cnt[i] * cnt[i]) % MOD;
+    cout << ans << '\n';
 }
