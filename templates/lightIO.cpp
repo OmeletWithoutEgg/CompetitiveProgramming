@@ -20,3 +20,8 @@ inline void writeint(int x) {
     while(p) buf[q++] = stk[--p];
     write(1, buf, q);
 }
+inline void writestr(const char *s) {
+    int len = 0;
+    for(; s[len]; ++len);
+    write(1, s, len);
+}
