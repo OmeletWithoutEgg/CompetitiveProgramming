@@ -1,55 +1,51 @@
 struct Dinic {
     struct Edge {
         int to;
-        int64_t cap,rest;
+        int64_t rest;
+        Edge(int t, int64_t r) : to(t), rest(r) {}
     };
     vector<Edge> E;
-    vector<int> g[N];
-    int n,dis[N],now[N];
-    void init(int sz) {
-        n = sz;
-        E.resize(0);
-        for(int i = 0; i < n; i++) g[i].resize(0);
+    vector<vector<int>> g;
+    vector<int> dis, cur;
+    Dinic(int n) : g(n), dis(n), cur(n) {}
+    void addEdge(int a, int b, int64_t cap) {
+        g[a].pb(E.size()), E.pb(b, cap);
+        g[b].pb(E.size()), E.pb(a, 0);
     }
-    void add_edge(int x,int y,int64_t cap) {
-        g[x].pb(E.size()), E.push_back({y,cap,cap});
-        g[y].pb(E.size()), E.push_back({x,0,0});
-    }
-    bool BFS(int s,int t) {
-        for(int i = 0; i < n; i++) dis[i] = -1;
+    bool bfs(int s, int t) {
+        fill(dis.begin(), dis.end(), -1);
         queue<int> q;
-        q.push(s), dis[s] = 0;
+        dis[s] = 0;
+        q.push(s);
         while(!q.empty()) {
-            s = q.front(), q.pop();
-            for(int id:g[s]) {
-                int v = E[id].to;
-                int64_t r = E[id].rest;
-                if(dis[v]==-1 && r > 0)
-                    q.push(v), dis[v] = dis[s]+1;
+            int i = q.front(); q.pop();
+            for(int id: g[i]) if(E[id].rest > 0 && dis[E[id].to] == -1) {
+                dis[E[id].to] = dis[i] + 1;
+                q.push(E[id].to);
             }
         }
-        return dis[t]!=-1;
+        return dis[t] != -1;
     }
-    int64_t DFS(int s,int t,int64_t lim) {
-        if(s == t) return lim;
+    int64_t dfs(int i, int t, int64_t lim) {
+        if(i == t) return lim;
         int64_t ans = 0;
-        while(now[s] < g[s].size() && lim != 0) {
-            int i = g[s][now[s]++];
-            if(dis[E[i].to] != dis[s]+1) continue;
-            int64_t tmp = DFS(E[i].to,t,min(E[i].rest,lim));
-            ans += tmp;
-            E[i^1].rest += tmp;
-            E[i].rest -= tmp;
-            lim -= tmp;
+        while(lim && cur[i] < int(g[i].size())) {
+            int id = g[i][cur[i]++];
+            if(dis[E[id].to] != dis[i] + 1) continue;
+            int f = dfs(E[id].to, t, min(lim, E[id].rest));
+            lim -= f;
+            ans += f;
+            E[id].rest -= f;
+            E[id^1].rest += f;
         }
         return ans;
     }
-    int64_t max_flow(int s,int t) {
-        int64_t res = 0;
-        while(BFS(s,t)) {
-            for(int i = 0; i < n; i++) now[i] = 0;
-            while(int64_t tmp = DFS(s,t,INF)) res += tmp;
+    int64_t maxFlow(int s, int t) {
+        int64_t ans = 0;
+        while(bfs(s, t)) {
+            fill(cur.begin(), cur.end(), 0);
+            while(int64_t f = dfs(s, t, 1e18)) ans += f;
         }
-        return res;
+        return ans;
     }
-} flow;
+};
