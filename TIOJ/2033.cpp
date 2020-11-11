@@ -1,41 +1,57 @@
-#include <bits/stdc++.h>
+#pragma GCC optimize("Ofast")
+#include <algorithm>
+#include <cstdio>
+#include <ctype.h>
+#include <unistd.h>
 
-using namespace std;
+using std::swap;
 const int N = 3000025;
 
-int v[N*2], u[N], p;
-int pos[N], vis[N];
-char readchar() {
+int v[N], u[N];
+int pos[N];
+inline char readchar() {
     static const int B = 1<<20;
     static char buf[B], *p, *q;
-    if(p == q && ((p=buf) == (q=buf+fread(buf, 1, B, stdin)))) return EOF;
+    if(p == q && ((p=buf) == (q=buf+fread_unlocked(buf, 1, B, stdin)))) return EOF;
+    /* if(p == q && ((p=buf) == (q=buf+read(0, buf, B)))) return -1; */
     return *p++;
 }
-int nextint() {
-    int x = 0, c = readchar();
-    while(c < '0' && ~c) c = readchar();
-    while(c >= '0') x = x*10 + (c^'0'), c = readchar();
-    return x;
+int readArr(int v[]) {
+    int n = 0;
+    char c, last = '_';
+    while((c = readchar()) != '\n') {
+        if(isdigit(c)) v[n] = v[n] * 10 + (c ^ '0');
+        else if(c != last) ++n;
+        last = c;
+    }
+    return ++n;
 }
-bool fail() {
-    puts("-1");
-    exit(0);
+inline void W(int x) {
+    static char stk[20], p, buf[20];
+    int q = 0;
+    if(!x) buf[q++] = '0';
+    while(x) stk[p++] = x%10^'0', x /= 10;
+    while(p) buf[q++] = stk[--p];
+    write(1, buf, q);
 }
 signed main() {
-    int x;
-    while(x = nextint()) v[p++] = x;
-    if(p&1) fail();
-    for(int i = p/2; i < p; i++) u[i-p/2] = v[i];
-    p /= 2;
-    int ans = p;
-    for(int i = 0; i < p; i++) if(v[i] < 1 || v[i] > p) fail();
-    for(int i = 0; i < p; i++) if(u[i] < 1 || u[i] > p) fail();
-    for(int i = 0; i < p; i++) pos[--v[i]] = i;
-    for(int i = 0; i < p; i++) if(!vis[i]) {
-        for(int x = i; !vis[x]; x = pos[--u[x]])
-            vis[x] = true;
-        --ans;
+    int p = readArr(v);
+    int q = readArr(u);
+    if(p != q) return write(1, "-1", 2), 0;
+    // for(int i = 0; i < p; i++) printf("%d%c", u[i], i+1==p ? '\n' : ' ');
+    /* for(int i = 0; i < p; i++) --v[i], --u[i]; */
+    for(int i = 0; i < p; i++) pos[v[i]] = i;
+    for(int i = 0; i < p; i++) u[i] = pos[u[i]];
+    for(int i = 0; i < p; i++) pos[u[i]] = i;
+    int ans = 0;
+    for(int i = 0, x; i < p; i++) {
+        if((x = u[i]) != i) {
+            swap(u[i], u[pos[i]]);
+            swap(pos[x], pos[i]);
+            ++ans;
+        }
     }
-    printf("%d\n", ans);
+    W(ans);
+    // printf("%d\n", ans);
 }
 
