@@ -56,10 +56,32 @@ template <typename T> using max_heap = std::priority_queue<T,vector<T>,less<T> >
 template <typename T> using min_heap = std::priority_queue<T,vector<T>,greater<T> >;
 template <typename T> using rbt = tree<T,null_type,less<T>,rb_tree_tag,tree_order_statistics_node_update>;
 constexpr ld PI = acos(-1), eps = 1e-7;
-constexpr ll N = 1000025, INF = 1e18, MOD = 1000000007, K = 14699, inf = 1e9;
+constexpr ll N = 100025, INF = 1e18, MOD = 1000000007, K = 14699, inf = 1e9;
 constexpr inline ll cdiv(ll x, ll m) { return x/m + (x%m ? (x<0) ^ (m>0) : 0); } // ceiling divide
 constexpr inline ll modpow(ll e,ll p,ll m=MOD) { ll r=1; for(e%=m;p;p>>=1,e=e*e%m) if(p&1) r=r*e%m; return r; }
 
+int dp[200][200][10];
 signed main() {
     ios_base::sync_with_stdio(0), cin.tie(0);
+    int n, m, k, s;
+    cin >> n >> m >> k >> s;
+    vector<pair<int,int>> v(k);
+    vector<vector<int>> A(n+1, vector<int>(m+1));
+    for(auto &[a, b]: v) cin >> a >> b, A[a][b]=1;
+    sort(all(v));
+    for(int i = 1; i <= n; i++) {
+        for(int j = 1; j <= m; j++) {
+            for(int t = A[i][j]; t <= k; t++) {
+                dp[i][j][t] = (dp[i-1][j][t-(A[i][j])] + dp[i][j-1][t-(A[i][j])] + (i==1 && j==1 && t==A[i][j])) % MOD;
+            }
+        }
+    }
+    int ans = 0, sum = 0;
+    for(int t = 0; t <= k; t++) {
+        ans = (ans + s * dp[n][m][t]) % MOD;
+        sum = (sum + dp[n][m][t]) % MOD;
+        s = (s+1)/2;
+    }
+    debug(ans, sum);
+    cout << ans * modpow(sum, MOD-2) % MOD << '\n';
 }
