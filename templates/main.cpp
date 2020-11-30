@@ -16,18 +16,21 @@
 #include <bits/extc++.h>
 #define safe std::cerr<<__PRETTY_FUNCTION__<<" line "<<__LINE__<<" safe\n"
 #define debug(args...) qqbx(#args, args)
-using ost = std::ostream;
-#define DESTL(STL, BEG, END, OUT) \
-    template <typename ...T> ost& operator<<(ost &O, std::STL<T...> v) { int f=0; for(auto x: v) O << (f++ ? ", " : BEG) << OUT; return O << END; }
-DESTL(deque, "[", "]", x); DESTL(vector, "[", "]", x);
-DESTL(set, "{", "}", x); DESTL(multiset, "{", "}", x); DESTL(unordered_set, "{", "}", x);
-DESTL(map , "{", "}", x.first << ":" << x.second); DESTL(unordered_map , "{", "}", x.first << ":" << x.second);
-template <typename U, typename V> ost& operator<<(ost &O, std::pair<U,V> p) { return O << '(' << p.first << ',' << p.second << ')'; }
-template <typename T, size_t N> ost& operator<<(ost &O, std::array<T,N> a) { int f=0; for(T x: a) O << (f++ ? ", " : "[") << x; return O << "]"; }
-template <typename T, size_t ...I> ost& prtuple(ost &O, T t, std::index_sequence<I...>) { return (..., (O << (I ? ", " : "(") << std::get<I>(t))), O << ")"; }
-template <typename ...T> ost& operator<<(ost &O, std::tuple<T...> t) { return prtuple(O, t, std::make_index_sequence<sizeof...(T)>()); }
+#define TAK(args...) std::ostream& operator<<(std::ostream &O, args)
+#define NIE(STL, BEG, END, OUT) template <typename ...T> TAK(std::STL<T...> v) \
+    { O << BEG; int f=0; for(auto e: v) O << (f++ ? ", " : "") << OUT; return O << END; }
+NIE(deque, "[", "]", e); NIE(vector, "[", "]", e); NIE(set, "{", "}", e);
+NIE(multiset, "{", "}", e); NIE(unordered_set, "{", "}", e);
+NIE(map , "{", "}", e.first << ":" << e.second);
+NIE(unordered_map , "{", "}", e.first << ":" << e.second);
+template <typename ...T> TAK(std::pair<T...> p) { return O << '(' << p.first << ',' << p.second << ')'; }
+template <typename T, size_t N> TAK(std::array<T,N> a) { return O << std::vector<T>(a.begin(), a.end()); }
+template <typename ...T> TAK(std::tuple<T...> t) {
+    return O << "(", std::apply([&O](T ...s){ int f=0; (..., (O << (f++ ? ", " : "") << s)); }, t), O << ")";
+}
 template <typename ...T> void qqbx(const char *s, T ...args) {
     int cnt = sizeof...(T);
+    if(!cnt) return std::cerr << "\033[1;32m() = ()\033\[0m\n", void();
     (std::cerr << "\033[1;32m(" << s << ") = (" , ... , (std::cerr << args << (--cnt ? ", " : ")\033[0m\n")));
 }
 #else
