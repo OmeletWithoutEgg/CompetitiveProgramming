@@ -35,6 +35,7 @@ template <typename ...T> void qqbx(const char *s, T ...args) {
 }
 #else
 #pragma GCC optimize("Ofast")
+#pragma loop_opt(on)
 #include <bits/extc++.h>
 #include <bits/stdc++.h>
 #define debug(...) ((void)0)
@@ -58,9 +59,10 @@ template <typename T> using max_heap = std::priority_queue<T,vector<T>,less<T> >
 template <typename T> using min_heap = std::priority_queue<T,vector<T>,greater<T> >;
 template <typename T> using rbt = tree<T,null_type,less<T>,rb_tree_tag,tree_order_statistics_node_update>;
 constexpr ld PI = acos(-1), eps = 1e-7;
-constexpr ll N = 200025, INF = 1e18, MOD = 1000000007, K = 20, inf = 1e9;
+constexpr ll N = 1000025, INF = 1e18, MOD = 1000000007, K = 14699, inf = 1e9;
 constexpr inline ll cdiv(ll x, ll m) { return x/m + (x%m ? (x<0) ^ (m>0) : 0); } // ceiling divide
 constexpr inline ll modpow(ll e,ll p,ll m=MOD) { ll r=1; for(e%=m;p;p>>=1,e=e*e%m) if(p&1) r=r*e%m; return r; }
+
 signed main() {
     ios_base::sync_with_stdio(0), cin.tie(0);
 }
