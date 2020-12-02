@@ -3,12 +3,13 @@
 using namespace std;
 
 signed main() {
-    int n = 3000;
-    cout << n << ' ' << n << '\n';
-    for(int i = 0; i < n; i++) {
-        for(int j = 0; j < n; j++) {
-            cout << "RGW"[(i+j)%3];
-        }
-        cout << '\n';
+    int k = 4900;
+    int n = 5000, q = k * 2;
+    cout << n << ' ' << q << '\n';
+    for(int i = 1; i <= k; i++) {
+        cout << 2 << ' ' << i << ' ' << i+1 << '\n';
+    }
+    for(int i = k; i >= 1; i--) {
+        cout << 2 << ' ' << i << ' ' << n << '\n';
     }
 }
