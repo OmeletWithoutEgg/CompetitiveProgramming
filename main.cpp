@@ -58,11 +58,70 @@ typedef pair<ld,ld> pld;
 template <typename T> using max_heap = std::priority_queue<T,vector<T>,less<T> >;
 template <typename T> using min_heap = std::priority_queue<T,vector<T>,greater<T> >;
 template <typename T> using rbt = tree<T,null_type,less<T>,rb_tree_tag,tree_order_statistics_node_update>;
-constexpr ld PI = acos(-1), eps = 1e-7;
-constexpr ll N = 1000025, INF = 1e18, MOD = 1000000007, K = 14699, inf = 1e9;
+constexpr ld PI = acos(-1), eps = 1e-8;
+constexpr ll N = 100025, INF = 1e18, MOD = 1000000007, K = 14699, inf = 1e9;
 constexpr inline ll cdiv(ll x, ll m) { return x/m + (x%m ? (x<0) ^ (m>0) : 0); } // ceiling divide
 constexpr inline ll modpow(ll e,ll p,ll m=MOD) { ll r=1; for(e%=m;p;p>>=1,e=e*e%m) if(p&1) r=r*e%m; return r; }
 
+struct BIT {
+    int mx[N], n;
+    void init(int _n) {
+        n = _n;
+        for(int i = 1; i <= n; i++) mx[i] = -1;
+    }
+    void add(int p, int v) {
+        for(; p <= n; p += p&-p) mx[p] = max(mx[p], v);
+    }
+    int qry(int p) {
+        int r = -1;
+        for(; p > 0; p -= p&-p) r = max(r, mx[p]);
+        return r;
+    }
+} fwt;
+int h[N];
+ll v[N];
+int n, q;
+ld solve() {
+    ld ans = -1;
+    auto calc = [&]() {
+        vector<ll> u(v, v+n+1);
+        debug(u);
+        sort_uni(u);
+        fwt.init(u.size());
+        for(int i = n; i >= 0; i--) {
+            int p = u.size() - get_pos(u, v[i]);
+            int j = fwt.qry(p);
+            fwt.add(p, i);
+            if(j != -1) debug(i, j, v[i], v[j]);
+            if(j == -1 || v[j] < v[i]) continue;
+            ll s = i ? v[i-1] - v[i] : -1;
+            if(s > 0) {
+                ans = max(ans, j-i + clamp((v[j] - v[i]) / ld(s), ld(0), ld(1)));
+            } else {
+                ans = max(ans, ld(j-i));
+            }
+        }
+    };
+    calc();
+    reverse(v,v+n+1);
+    for(int i = 0; i <= n; i++) v[i] = -v[i];
+    calc();
+    return ans;
+}
+// ans * 1000000 and calc
 signed main() {
     ios_base::sync_with_stdio(0), cin.tie(0);
+    cin >> n >> q;
+    for(int i = 0; i <= n; i++) cin >> h[i];
+    while(q--) {
+        ld g;
+        cin >> g;
+        int s = g * 10;
+        for(int i = 0; i <= n; i++) v[i] = h[i] - 1LL * s * i;
+        ld ans = solve();
+        if(ans < 1)
+            cout << -1 << '\n';
+        else
+            cout << fixed << setprecision(10) << solve() << '\n';
+    }
 }
