@@ -43,15 +43,16 @@ signed main(){
 }
 void in(ll *x){
     c = getchar();
-    while(!isdigit(c))c = getchar();
-    while(isdigit(c))*x = *x*10+c-'0',c = getchar();
+    while(!isdigit(c)) c = getchar();
+    while(isdigit(c)) *x = *x*10+c-'0', c = getchar();
 }
 ll GCD(register ll a,register ll b){
-    register char sft=__builtin_ctz(a|b);
-    a>>=__builtin_ctz(a),b>>=__builtin_ctz(b);
-    while(a!=b){
-        if(a>b)a-=b,a>>=__builtin_ctz(a);
-        else b-=a,b>>=__builtin_ctz(b);
+    if(!a || !b) return a | b;
+    register char sft=__builtin_ctzll(a|b);
+    a>>=__builtin_ctzll(a), b>>=__builtin_ctzll(b);
+    while(a!=b) {
+        if(a>b)a-=b, a>>=__builtin_ctzll(a);
+        else b-=a, b>>=__builtin_ctzll(b);
     }
     return a<<sft;
 }
