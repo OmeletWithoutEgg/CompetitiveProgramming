@@ -1,61 +1,28 @@
-#include <stdio.h>
-#include <string.h>
-#include <algorithm>
-#include <vector>
+#include <bits/stdc++.h>
+#define pb emplace_back
+
 using namespace std;
-const int N = 505;
-int vis[N];
-vector<int> g[N];
-int tot;
-int ans;
-void dfs(int cu,int sum)
-{
-    if (sum > ans) return;
-    if (cu > tot)
-    {
-        ans = sum;
-        return;
-    }
-    if (vis[cu]) dfs(cu+1,sum);
-    else
-    {
-        vis[cu]++;
-        dfs(cu+1,sum+1);
-        vis[cu]--;
-        for (auto x : g[cu])
-        {
-            if (!vis[x]) sum++;
-            vis[x]++;
+using ld = long double;
+using ll = long long;
+
+signed main() {
+#ifndef local
+    freopen("balance.in", "r", stdin);
+    freopen("balance.out", "w", stdout);
+#endif // local
+    ios_base::sync_with_stdio(0), cin.tie(0);
+    int n;
+    cin >> n;
+    vector<int> f(n+2);
+    vector<ld> ans(n+2);
+    for(int i = 1; i <= n; i++) cin >> f[i];
+    for(int i = 1; i <= n; i++) {
+        ld res = -1e18;
+        for(int j = i; j <= n+1; j++) {
+            res = max(res, (f[j] - ans[i-1]) / ld(j-i+1));
         }
-        dfs(cu+1,sum);
-        for (auto x : g[cu])
-        {
-            vis[x]--;
-            if (!vis[x]) sum--;
-        }
+        ans[i] = ans[i-1] + res;
     }
-}
-int main()
-{
-    int n,m;
-    while (scanf("%d%d",&n,&m) != EOF)
-    {
-        tot = 0;
-        ans = 10000;
-        memset(vis,0,sizeof(vis));
-        for (int i = 1;i <= n;i++) g[i].clear();
-        for (int i = 0;i < m;i++)
-        {
-            int x,y;
-            if(scanf("%d%d",&x,&y) != 2) exit(0);
-            g[x].push_back(y);
-            g[y].push_back(x);
-        }
-        tot = min(30,n);
-        ans = tot;
-        dfs(1,0);
-        printf("tot = %d\n", tot);
-        printf("%d\n",ans);
-    }
-    return 0;
+    for(int i = 1; i <= n; i++)
+        cout << ll(floor(ans[i] * 100000 + 1e-7)) << '\n';
 }
