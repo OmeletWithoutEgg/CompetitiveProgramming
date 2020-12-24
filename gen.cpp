@@ -3,13 +3,13 @@
 using namespace std;
 
 signed main() {
-    int k = 4900;
-    int n = 5000, q = k * 2;
-    cout << n << ' ' << q << '\n';
-    for(int i = 1; i <= k; i++) {
-        cout << 2 << ' ' << i << ' ' << i+1 << '\n';
+    int n = 20;
+    int m = 8;
+    cout << m << ' ' << n << '\n';
+    int a[20] = {1, 2, 4, 8, 1, 2, 4, 8, 1, 2, 4, 8, 1, 2, 4, 8, 1, 2, 4, 5};
+    for(int i = 0; i < n; i++) {
+        cout << a[i] << ' ';
     }
-    for(int i = k; i >= 1; i--) {
-        cout << 2 << ' ' << i << ' ' << n << '\n';
-    }
+    cout << '\n';
+    cerr << accumulate(a,a+n,0) << '\n';
 }

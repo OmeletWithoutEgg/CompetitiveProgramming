@@ -1,64 +1,45 @@
-/*
---------------              |   /
-      |                     |  /
-      |                     | /
-      |             *       |/          |    |         ------            *
-      |                     |           |    |        /      \
-      |             |       |\          |    |       |       |\          |
-   \  |             |       | \         |    |       |       | \         |
-    \ |             |       |  \        |    |        \     /   \        |
-     V              |       |   \        \__/|         -----     \       |
-*/
-#include <bits/stdc++.h>
-using namespace std;
-
-#define EmiliaMyWife ios::sync_with_stdio(0); cin.tie(NULL);
-using ll = int64_t;
-using ull = uint64_t;
-using ld = long double;
-using uint = uint32_t;
-const double EPS  = 1e-8;
-const int INF     = 0x3F3F3F3F;
-const ll LINF     = 4611686018427387903;
-const int MOD     = 1e9+7;
-/*--------------------------------------------------------------------------------------*/
-
-signed main() { EmiliaMyWife
-        int n, q;
-        cin >> n >> q;
-        cerr<<q<<'\n';
-        vector<int> nxt(n + 1), sz(n + 1, 1), pa(n + 1);
-        for(int i = 1; i <= n; i++)
-                nxt[i] = i + 1, pa[i] = i;
-        const function<int(int)> fnd = [&] (int x) { return pa[x] == x ? pa[x] : pa[x] = fnd(pa[x]); };
-        const auto uni = [&] (int a, int b) {
-                if((a = fnd(a)) == (b = fnd(b)))
-                        return;
-                if(sz[a] > sz[b])
-                        swap(a, b);
-                sz[b] += sz[a];
-                pa[a] = b;
-        };
-        int cnt = 0;
-        const function<void(int, int)> que = [&] (int x, int y) {
-                if(nxt[x] > y)
-                        return;
-                que(nxt[x], y);
-                uni(x, nxt[x]);
-                nxt[x] = nxt[nxt[x]];
-                ++cnt;
-        };
-        int a, b, c;
-        while(q--) {
-                assert(cin >> a >> b >> c);
-                if(a == 1)
-                        uni(b, c);
-                if(a == 2)
-                        que(b, c);
-                if(a == 3)
-                        cout << (fnd(b) == fnd(c) ? "YES" : "NO") << '\n';
-        }
-        cerr << "cnt = " << cnt << '\n';
-        /* for(int i = 1; i <= n; i++) cerr << nxt[i] << ' '; */
-        cerr << '\n';
-}
+#include<bits/stdc++.h> 
+#define LL long long 
+#define int LL
+using namespace std; 
+LL N,M;
+LL arr[105],T=0,sum;
+bool vis[105]; 
+bool cmp(int a,int b){ 
+    return a>b; 
+} 
+bool dfs(int n,int num,int t){ 
+    T++; 
+    if(t==N)return 1; 
+    for(int i=n;i<M;i++){ 
+        if(vis[i])continue; 
+        vis[i]=1; 
+        if(num+arr[i]==sum){ 
+            if(dfs(0,0,t+1))return 1; 
+        } 
+        else if(num+arr[i]<sum){ 
+            if(dfs(i+1,num+arr[i],t))return 1; 
+        }  
+        vis[i]=0; 
+    } 
+    return 0; 
+} 
+signed main(){ 
+    ios::sync_with_stdio(0); 
+    cin>>N>>M; 
+    sum=0; 
+    for(int i=0;i<M;i++){ 
+        cin>>arr[i]; 
+        sum+=arr[i];  
+    } 
+    sort(arr,arr+M,cmp); 
+    cerr<<arr[0]<<'\n';
+    if(arr[0]*N>sum || sum%N!=0)cout<<"no QQ\n";
+    else {
+        sum /= N;
+        if(dfs(0,0,0))cout<<"yes\n"; 
+        else cout<<"no\n"; 
+        cerr<<T<<'\n';
+    }
+    return 0; 
+} 
