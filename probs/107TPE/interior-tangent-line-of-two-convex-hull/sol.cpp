@@ -20,19 +20,19 @@ public:
     }
 };
 
-struct Line {
-    int a, b; // y = ax+b
-    friend bool operator<(const Line &x, const Line &y) {
-        return x.a < y.a;
-    }
-};
+/* struct Line { */
+/*     int a, b; // y = ax+b */
+/*     friend bool operator<(const Line &x, const Line &y) { */
+/*         return x.a < y.a; */
+/*     } */
+/* }; */
 
 vector<array<int,2>> convexHull(vector<array<int,2>> sorted) {
     auto ok = [](array<int,2> a, array<int,2> b, array<int,2> c) -> bool {
         // AB ^ AC
         b[0] -= a[0], b[1] -= a[1];
         c[0] -= a[0], c[1] -= a[1];
-        return b[0] * c[1] - b[1] * c[0] > 0;
+        return 1LL * b[0] * c[1] - 1LL * b[1] * c[0] > 0;
     };
     vector<array<int,2>> L, U;
     for(auto p: sorted) {
@@ -61,4 +61,8 @@ signed main() {
     int h = n / 2;
     auto A = convexHull(vector<array<int,2>>(v.begin(), v.begin() + h));
     auto B = convexHull(vector<array<int,2>>(v.begin() + h, v.end()));
+    rotate(B.begin(), max_element(B.begin(), B.end(), [](array<int,2> a, array<int,2> b){
+            return a[1] < b[1];
+        }), B.end());
+    int i = 0, j = 0;
 }
