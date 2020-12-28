@@ -1,42 +1,69 @@
-#include <bits/stdc++.h>
-#define debug(x) 1&&(cout<<#x<<" = "<<x<<'\n')
+#include <cstdio>
+#include <algorithm>
 
 using namespace std;
-constexpr int N = 1002525;
+constexpr int N = 1 << 19;
 
-int seg[N << 2], laz[N << 2], n, ql, qr, k, id[N];
-struct OP{
-    int x, d, u, v;
-} Q[N];
-void modify(int i=1,int l=0,int r=N){
-    //if(l >= qr || r <= ql) return;
-    if(ql <= l && r <= qr) laz[i] += k;
-    else {
-        int mid = l+(r-l>>1);
-        if(ql < mid) modify(i<<1,l,mid);
-        if(qr > mid) modify(i<<1|1,mid,r);
-    }
-    seg[i] = laz[i] ? r-l : seg[i<<1]+seg[i<<1|1];
+inline char readchar() {
+    constexpr int B = 1<<20;
+    static char buf[B], *p, *q;
+    if(p == q && (q=(p=buf)+fread(buf,1,B,stdin)) == buf) return EOF;
+    return *p++;
 }
+inline int nextint() {
+    int x = 0, c = readchar();
+    while(c < '0') c = readchar();
+    while(c >= '0') x=x*10+(c^'0'), c=readchar();
+    return x;
+}
+
+struct Segtree {
+    int lz[N*2], ans[N*2];
+    void upd(int p, int d, int len) {
+        lz[p] += d;
+        ans[p] = lz[p] ? len : (p < N ? ans[p<<1] + ans[p<<1|1] : 0);
+    }
+    void pull(int p) {
+        for(int h = 1; p > 1; p>>=1, ++h)
+            ans[p>>1] = (lz[p>>1] ? 1 << h : ans[p] + ans[p^1]);
+    }
+    void add(int l, int r, int d) {
+        int L = l, R = r, len = 1;
+        for(l+=N, r+=N; l<r; l>>=1, r>>=1, len<<=1) {
+            if(l&1) upd(l++, d, len);
+            if(r&1) upd(--r, d, len);
+        }
+        pull(L+N), pull(R-1+N);
+    }
+    int query() {
+        return ans[1];
+    }
+} sgt;
+struct Event {
+    int x, l, r, w;
+    bool operator<(const Event &rhs) const {
+        return x < rhs.x;
+    }
+} E[N*2];
 signed main(){
-    ios_base::sync_with_stdio(0),cin.tie(0);
-    cin >> n;
-    for(int i = 0, L, R, D, U; i < n; i++) {
-        cin >> Q[i*2].x >> Q[i*2+1].x >> D >> U;
-        Q[i*2].d = Q[i*2+1].d = D, Q[i*2].u = Q[i*2+1].u = U;
-        Q[i*2].v = 1, Q[i*2+1].v = -1;
-    }
-    n <<= 1;
-    iota(id,id+n,0);
-    sort(id,id+n,[](int a,int b){return Q[a].x < Q[b].x;});
-    int lastX = 0;
-    int64_t res = 0;
+    int n = nextint();
     for(int i = 0; i < n; i++) {
-        auto &q = Q[id[i]];
-        res += int64_t(q.x - lastX) * seg[1];
-        ql = q.d, qr = q.u, k = q.v;
-        modify();
-        lastX = q.x;
+        int l, r, d, u;
+        l = nextint();
+        r = nextint();
+        d = nextint();
+        u = nextint();
+        E[i << 1 | 0] = {l, d, u, 1};
+        E[i << 1 | 1] = {r, d, u, -1};
     }
-    cout << res << '\n';
+    sort(E, E+n*2);
+    int lastx = 0;
+    long long ans = 0;
+    for(int i = 0; i < n*2; i++) {
+        auto [x, l, r, w] = E[i];
+        ans += 1LL * sgt.query() * (x - lastx);
+        sgt.add(l, r, w);
+        lastx = x;
+    }
+    printf("%lld\n", ans);
 }
