@@ -11,12 +11,9 @@ template <typename ...T> string format(const char *F, T ...args) {
     return string(buf);
 }
 template <typename T> T select(vector<pair<double,T>> evt) {
-    {
-        double tot = 0;
-        for(auto [p, v]: evt) tot += p;
-        assert(abs(tot - 1) < 1e-10);
-    }
+    assert( accumulate(evt.begin(), evt.end(), 0.0, [](double s, pair<double,T> p) { return s + p.first; }) == 1);
     double res = uniform_real_distribution()(rng);
+    cerr << "res = " << res << '\n';
     double sum = 0;
     for(auto [p, v]: evt) {
         if(sum <= res && res < sum + p) return v;
@@ -92,7 +89,7 @@ void smallHandMade() {
     handMade("19.in", {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12});
 }
 void bigHandMade() {
-    handMade("40.in", vector<int>(99999, 2));
+    handMade("40.in", vector<int>(99998, 2));
     handMade("41.in", {100000, 7122});
     handMade("42.in", {7122, 100000});
     handMade("43.in", {200000});
@@ -103,7 +100,7 @@ void bigHandMade() {
     handMade("46.in", inc);
     handMade("47.in", {1, 79999, 79999});
     handMade("48.in", {1, 89999, 79999});
-    handMade("49.in", vector<int>(22222, 4));
+    handMade("49.in", vector<int>(22222, 7));
 }
 signed main() {
 #define FOR(i, l, r) for(int i = l; i < r; i++)
@@ -126,10 +123,10 @@ signed main() {
         string command = format("./sol <%02d.in >%02d.out", i, i);
         int code = system(command.c_str());
         cerr << command << ' ' << code << '\n';
-        if(code) break;
+        if(code) return 3;
     }
     for(int i = 0; i < 50; i++) {
-        string command = format("./kev <%02d.in >kev-%02d.out && diff %02d.out kev-%02d.out && rm kev-%02d.out", i, i, i, i, i, i);
+        string command = format("./kev <%02d.in >kev-%02d.out && diff %02d.out kev-%02d.out; rm kev-%02d.out", i, i, i, i, i, i);
         int code = system(command.c_str());
         cerr << command << ' ' << code << '\n';
         // if(code) break;
