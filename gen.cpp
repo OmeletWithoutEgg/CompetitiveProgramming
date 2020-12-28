@@ -22,4 +22,5 @@ signed main() {
     for(int i = 0; i < 7; i++) for(int j = 0; j < 7; j++) if(mp[i][j]) {
         cout << i*2+1 << ' ' << j*2+1 << '\n';
     }
+    cout << '\n';
 }

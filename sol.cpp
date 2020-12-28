@@ -16,40 +16,16 @@ template <typename ...T> void qqbx(const char *s, T ...args) {
 using namespace std;
 const int N = 24;
 
-int p[N], l[N], r[N], g[N];
 signed main() {
     ios_base::sync_with_stdio(0), cin.tie(0);
-    int n;
-    cin >> n;
-    for(int i = 0; i < n; i++) cin >> l[i] >> r[i];
-    for(int i = 0; i < n; i++) {
-        g[i] = 1 << i;
-        for(int j = 0; j < n; j++) {
-            if(j == i) continue;
-            if((l[i] < l[j] && l[j] < r[i]) ^ (l[i] < r[j] && r[j] < r[i])) {
-                g[i] |= 1 << j;
-            }
-        }
+    int n, m;
+    cin >> m >> n;
+    vector<int> a(n);
+    for(int i = 0; i < n; i++) cin >> a[i];
+    vector<int> dp(1<<n);
+    dp[0] = true;
+    for(int s = 1; s < (1<<n); s++) {
+        int i = __lg(s & -s);
+        dp[s] = dp[s ^ (1<<i)] && 0;
     }
-    int ans = n;
-    iota(p, p+n, 0);
-    mt19937 rng(7122);
-    for(int c = 0; c < 50; c++) {
-        shuffle(p, p+n, rng);
-        vector<int> now;
-        for(int i = 0; i < n; i++) {
-            bool found = false;
-            for(int &x: now) {
-                if(~x >> p[i] & 1) {
-                    x |= g[p[i]];
-                    found = true;
-                    break;
-                }
-            }
-            if(!found) now.pb(g[p[i]]);
-        }
-        ans = min(ans, int(now.size()));
-        /* next_permutation(p, p+n); */
-    }
-    cout << ans << '\n';
 }

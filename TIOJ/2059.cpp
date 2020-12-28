@@ -1,7 +1,9 @@
 #pragma GCC optimize("Ofast")
-#include <bits/stdc++.h>
+#pragma GCC optimize("popcnt")
+#include <cstdio>
 #include <cstdint>
-#define debug(x) cout<<#x<<':'<<x<<'\n'
+#include <cctype>
+#define ctz __builtin_ctzll
 //#define putchar putchar_unlocked
 //#define getchar getchar_unlocked
 
@@ -29,33 +31,34 @@ typedef uint64_t ll;
 inline void input(ll &x){
     x = 0;
     char c = getchar();
-    while(!isdigit(c))c = getchar();
-    while(isdigit(c))x = x*10+c-'0',c = getchar();
+    while(!isdigit(c)) c = getchar();
+    while(isdigit(c)) x = x*10+c-'0', c = getchar();
 }
 inline ll gcd(register ll a,register ll b){
-    if(!a)return b;
-    if(!b)return a;
-    register int sft=__builtin_ctz(a|b);
-    for(;;){
-        a>>=__builtin_ctz(a), b>>=__builtin_ctz(b);
-        if(!a)return b<<sft;
-        if(!b)return a<<sft;
-        if(a>b)a-=b;
-        else b-=a;
+    if(!a || !b) return a | b;
+    register int s = ctz(a|b);
+    a >>= s, b >>= s;
+    while(a != b) {
+        a >>= ctz(a);
+        b >>= ctz(b);
+        if(a > b) a -= b;
+        else if(a < b) b -= a;
+        else return a << s;
     }
+    return a << s;
 }
 ll c = 0;
 char t[40]={},p=0;
 ll n,a,b,g;
 signed main(){
-    input(n),input(a),input(b);
+    input(n), input(a), input(b);
     while(n--){
         g = gcd(a,b);
         a = PRNG(b,g), b = PRNG(a,g), c = PRNG(c,g);
     }
     if(!c)putchar('0');
     else {
-        while(c)t[p++]=c%10+'0',c/=10;
-        while(p--)putchar(t[p]);
+        while(c) t[p++]=c%10^'0' ,c/=10;
+        while(p) putchar(t[--p]);
     }
 }
