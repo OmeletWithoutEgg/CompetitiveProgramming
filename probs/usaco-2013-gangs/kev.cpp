@@ -23,19 +23,21 @@ void debug(T L, T R) { while (L != R) cerr << *L << " \n"[next(L)==R], ++L; }
 // 2. corner cases
 // Enjoy the problem instead of hurrying to AC
 // Good luck !
-/*
-ID: ckevin31
-LANG: C++14
-TASK: 
-*/
-inline void IO(string name){}
+void fail() { cout << "NO\n", exit(0); }
 int32_t main() {
 	ios_base::sync_with_stdio(0), cin.tie(0);
-	IO("gangs");
 	int n, m;
 	cin >> n >> m;
 	vector<int> cnt(m), res;
 	for (int &i : cnt) cin >> i;
+
+	if (m == 2) {
+		if (cnt[0] <= cnt[1]) fail();
+		cout << "YES\n" << cnt[0] - cnt[1] << '\n';
+		for (int i = 0;i < n;++i)
+			cout << (i < cnt[0] ? 1 : 2) << '\n';
+		return 0;
+	}
 
 	int mx = m == 1 ? 0 : *max_element(cnt.begin()+1, cnt.end());
 
@@ -44,7 +46,7 @@ int32_t main() {
 	// if number of numbers other than one is odd, then we need to eliminate at least one with them
 	if ((n - cnt[0]) % 2 == 1 && y == 0) ++y, --x;
 
-	if (x <= 0) return cout << "NO\n", 0;
+	if (x <= 0) fail();
 	
 	assert(x + y == cnt[0] && min(x, y) >= 0);
 
@@ -65,11 +67,13 @@ int32_t main() {
 			++Fcnt, Fid = id;
 		else 
 			--Fcnt;
+
 		if (id) {
-			--cntcnt[ cnt[id]-- ], --sum;
+			--cntcnt[ cnt[id]-- ];
 			if (cnt[id] >= 0)
 				++cntcnt[ cnt[id] ];
 		}
+		--sum;
 		res.pb(id);
 	};
 
@@ -96,6 +100,10 @@ int32_t main() {
 	}
 
 	for (int i = 0;i < x;++i) put(0);
+
+	DE(Fid+1, Fcnt, x);
+
+	assert(Fid == 0 && x == Fcnt);
 
 	cout << "YES\n" << x << '\n';
 	for (int u : res)

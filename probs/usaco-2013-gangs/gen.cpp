@@ -104,6 +104,7 @@ void bigHandMade() {
 }
 signed main() {
 #define FOR(i, l, r) for(int i = l; i < r; i++)
+    /*
     FOR(i, 0, 10)
         gen(format("%02d.in", i), 100, 100);
     // [10, 20) is hand-made
@@ -125,7 +126,15 @@ signed main() {
         cerr << command << ' ' << code << '\n';
         if(code) return 3;
     }
+    */
+    handMade("50.in", {2, 1, 2, 2});
+    {
+        int code = system("./sol <50.in >50.out");
+        cerr << code << '\n';
+        if(code) return 3;
+    }
     for(int i = 0; i < 50; i++) {
+        i=50;
         string command = format("./kev <%02d.in >kev-%02d.out && diff %02d.out kev-%02d.out; rm kev-%02d.out", i, i, i, i, i, i);
         int code = system(command.c_str());
         cerr << command << ' ' << code << '\n';
