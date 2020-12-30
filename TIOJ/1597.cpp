@@ -18,37 +18,40 @@ using namespace std;
 template <typename T> using min_heap = priority_queue<T, vector<T>, greater<T>>;
 using ll = long long;
 using ld = double;
+using pll = pair<ll,ll>;
 
 struct Dijkstra {
     vector<vector<tuple<ll,ll,int>>> g;
     vector<ll> dis;
+    vector<ll> slope;
     vector<bool> vis;
-    Dijkstra(size_t n) : g(n), dis(n), vis(n) {}
+    Dijkstra(size_t n) : g(n), dis(n), slope(n), vis(n) {}
     void addEdge(int a, int b, ll c, ll p) {
         g[a].pb(c, p, b);
     }
-    ll shortestPath(int s, int t, int T) {
+    pll shortestPath(int s, int t, int T) {
         fill(all(dis), -1);
         fill(all(vis), false);
         min_heap<pair<ll,int>> pq;
         pq.push({0, s});
         dis[s] = 0;
+        slope[s] = 0;
         while(!pq.empty()) {
             auto [d, i] = pq.top(); pq.pop();
             if(vis[i]) continue;
             vis[i] = true;
-            if(i == t) return d;
+            if(i == t) return {d, slope[t]};
             for(auto [c, p, j]: g[i]) {
                 if(vis[j]) continue;
                 ll w = c + p * T;
                 if(dis[j] == -1 || dis[j] > d + w) {
                     dis[j] = d+w;
+                    slope[j] = slope[i] + p;
                     pq.push({dis[j], j});
                 }
             }
         }
-        // assert(dis[t] != -1);
-        return dis[t];
+        return {dis[t], slope[t]};
     }
 };
 signed main() {
@@ -65,18 +68,19 @@ signed main() {
         dij.addEdge(x, y, c1, p1);
         dij.addEdge(y, x, c2, p2);
     }
-    auto calc = [&](int T) -> ll {
-        return dij.shortestPath(A, B, T) + dij.shortestPath(B, A, T);
+    auto calc = [&](int T) -> pll {
+        auto [d1, s1] = dij.shortestPath(A, B, T);
+        auto [d2, s2] = dij.shortestPath(B, A, T);
+        return {d1+d2, s1+s2};
     };
     ll ans = 0;
     for(int s = 1 << 29; s; s>>=1) {
         debug(ans, s);
-        if(ans + s >= D) continue;
-        ll c1 = calc(ans + s - 1);
-        ll c2 = calc(ans + s);
-        if(c1 <= c2)
+        if(ans + s >= D-1) continue;
+        auto [dis, slope] = calc(ans + s);
+        if(slope >= 0)
             ans += s;
-        if(c1 == c2) break;
+        if(slope == 0) break;
     }
-    cout << calc(ans) - min(calc(0), calc(D-1)) << '\n';
+    cout << max(calc(ans).first, calc(ans+1).first) - min(calc(0).first, calc(D-1).first) << '\n';
 }
