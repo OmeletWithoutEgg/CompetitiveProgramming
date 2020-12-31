@@ -96,11 +96,11 @@ template <typename T> using min_heap = std::priority_queue<T,vector<T>,greater<T
 template <typename T> using rbt = tree<T,null_type,less<T>,rb_tree_tag,tree_order_statistics_node_update>;
 template <typename V, typename T> int get_pos(V v, T x) { return int(lower_bound(begin(v),end(v),x)-begin(v)); }
 template <typename V> void sort_uni(V &v) { sort(begin(v),end(v)),v.erase(unique(begin(v),end(v)),end(v)); }
+constexpr inline ll cdiv(ll x, ll m) { return x/m + (x%m ? (x<0) ^ (m>0) : 0); } // ceiling divide
+// constexpr inline ll modpow(ll e,ll p,ll m=MOD) { ll r=1; for(e%=m;p;p>>=1,e=e*e%m) if(p&1) r=r*e%m; return r; }
 
 constexpr ld PI = acos(-1), eps = 1e-7;
 constexpr ll N = 1000025, INF = 1e18, MOD = 1000000007, K = 14699, inf = 1e9;
-constexpr inline ll cdiv(ll x, ll m) { return x/m + (x%m ? (x<0) ^ (m>0) : 0); } // ceiling divide
-// constexpr inline ll modpow(ll e,ll p,ll m=MOD) { ll r=1; for(e%=m;p;p>>=1,e=e*e%m) if(p&1) r=r*e%m; return r; }
 using Mint = Modular<int32_t, MOD>;
 
 signed main() {

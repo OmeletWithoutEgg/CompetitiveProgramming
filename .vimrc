@@ -87,7 +87,7 @@ vnoremap <silent> J :m '>+1<CR>gv=gv
 vnoremap <silent> K :m '<-2<CR>gv=gv
 vnoremap > >gv
 vnoremap < <gv
-command Codeforces %d<bar>r ~/CompetitiveProgramming/templates/main.cpp<bar>1d<bar>15,98fold
+command Codeforces %d<bar>r ~/CompetitiveProgramming/templates/main.cpp<bar>1d<bar>15,100fold
 
 nnoremap <silent> <F2> :if expand('%') <bar> cd %:h <bar> endif <bar> NERDTreeToggle <bar> call lightline#update()<CR>
 
