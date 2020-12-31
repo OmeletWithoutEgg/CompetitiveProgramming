@@ -41,14 +41,50 @@ template <typename ...T> void qqbx(const char *s, T ...args) {
 #define debug(...) ((void)0)
 #define safe ((void)0)
 #endif // local
-#define all(v) begin(v),end(v)
-#define get_pos(v,x) int(lower_bound(begin(v),end(v),x)-begin(v))
-#define sort_uni(v) sort(begin(v),end(v)),v.erase(unique(begin(v),end(v)),end(v))
 #define pb emplace_back
+#define all(v) begin(v),end(v)
+#define mem(v,x) memset(v,x,sizeof v)
 #define ff first
 #define ss second
-#define mem(v,x) memset(v,x,sizeof v)
  
+template <typename T, T MOD> class Modular {
+public:
+    constexpr Modular() : v() {}
+    template <typename U> Modular(const U &u) { v = (0 <= u && u < MOD ? u : (u%MOD+MOD)%MOD); }
+    template <typename U> explicit operator U() const { return U(v); }
+    T operator()() { return v; }
+#define REFOP(type, expr...) Modular &operator type (const Modular &rhs) { return expr, *this; }
+    constexpr static int width = sizeof(T) * 8 - 1;
+    REFOP(+=, v += rhs.v - MOD, v += MOD & (v >> width)) ; REFOP(-=, v -= rhs.v, v += MOD & (v >> width))
+    // fits for MOD^2 <= 9e18
+    REFOP(*=, v = 1LL * v * rhs.v % MOD) ; REFOP(/=, v = 1LL * v * inverse(rhs.v) % MOD)
+#define VALOP(type, op) friend Modular operator type (Modular lhs, const Modular &rhs) { return lhs op rhs; }
+    VALOP(+, +=) ; VALOP(-, -=) ; VALOP(*, *=) ; VALOP(/, /=)
+    Modular operator-() const { return 0 - *this; }
+    friend bool operator == (const Modular &lhs, const Modular &rhs) { return lhs.v == rhs.v; }
+    friend bool operator != (const Modular &lhs, const Modular &rhs) { return lhs.v != rhs.v; }
+    friend std::istream & operator>>(std::istream &I, Modular &m) { return I >> m.v, m.v = (m.v % MOD + MOD) % MOD, I; }
+    friend std::ostream & operator<<(std::ostream &O, Modular &m) { return O << m.v; }
+    friend Modular operator^(Modular e, size_t p) {
+        Modular r = 1;
+        while(p) (p&1) && (r *= e), e *= e, p >>= 1;
+        return r;
+    }
+private:
+    T v;
+    static T inverse(T a) {
+        // copy from tourist's template
+        T u = 0, v = 1, m = MOD;
+        while (a != 0) {
+            T t = m / a;
+            m -= t * a; swap(a, m);
+            u -= t * v; swap(u, v);
+        }
+        assert(m == 1);
+        return u;
+    }
+};
+
 using namespace std;
 using namespace __gnu_pbds;
 typedef int64_t ll;
@@ -58,50 +94,15 @@ typedef pair<ld,ld> pld;
 template <typename T> using max_heap = std::priority_queue<T,vector<T>,less<T> >;
 template <typename T> using min_heap = std::priority_queue<T,vector<T>,greater<T> >;
 template <typename T> using rbt = tree<T,null_type,less<T>,rb_tree_tag,tree_order_statistics_node_update>;
-constexpr ld PI = acos(-1), eps = 1e-7;
-constexpr ll N = 2000025, INF = 1e18, MOD = 1000000007, K = 14699, inf = 1e9;
-constexpr inline ll cdiv(ll x, ll m) { return x/m + (x%m ? (x<0) ^ (m>0) : 0); } // ceiling divide
-constexpr inline ll modpow(ll e,ll p,ll m=MOD) { ll r=1; for(e%=m;p;p>>=1,e=e*e%m) if(p&1) r=r*e%m; return r; }
+template <typename V, typename T> int get_pos(V v, T x) { return int(lower_bound(begin(v),end(v),x)-begin(v)); }
+template <typename V> void sort_uni(V &v) { sort(begin(v),end(v)),v.erase(unique(begin(v),end(v)),end(v)); }
 
-int mu[N];
-bool sv[N];
-vector<int> prs;
-ll pw[N];
-ll pre[N];
+constexpr ld PI = acos(-1), eps = 1e-7;
+constexpr ll N = 1000025, INF = 1e18, MOD = 1000000007, K = 14699, inf = 1e9;
+constexpr inline ll cdiv(ll x, ll m) { return x/m + (x%m ? (x<0) ^ (m>0) : 0); } // ceiling divide
+// constexpr inline ll modpow(ll e,ll p,ll m=MOD) { ll r=1; for(e%=m;p;p>>=1,e=e*e%m) if(p&1) r=r*e%m; return r; }
+using Mint = Modular<int32_t, MOD>;
+
 signed main() {
     ios_base::sync_with_stdio(0), cin.tie(0);
-    mu[1] = 1;
-    for(int i = 2; i < N; i++) {
-        if(!sv[i]) prs.pb(i), mu[i] = -1;
-        for(int p: prs) {
-            if(i*p >= N) break;
-            sv[i*p] = true;
-            if(i % p) {
-                mu[i*p] = -mu[i];
-            } else {
-                mu[i*p] = 0;
-                break;
-            }
-        }
-    }
-    int n, k;
-    cin >> n >> k;
-    for(int i = 0; i <= k; i++) pw[i] = modpow(i, n);
-    auto add = [](int l, int r, int v) {
-        pre[l] += v;
-        pre[r] += MOD - v;
-        pre[l] %= MOD;
-        pre[r] %= MOD;
-    };
-    for(int t = 1; t <= k; t++) {
-        for(int i = 0; i*t <= k; i++) {
-            add(i*t, min(k+1, i*t+t), 1LL * pw[i] * (mu[t] + MOD) % MOD);
-        }
-    }
-    debug(pre[0]);
-    for(int i = 1; i <= k; i++) pre[i] += pre[i-1], pre[i] %= MOD;
-    for(int i = 1; i <= k; i++) debug(i, pre[i]);
-    ll ans = 0;
-    for(int i = 1; i <= k; i++) ans += pre[i] ^ i;
-    cout << ans % MOD << '\n';
 }
