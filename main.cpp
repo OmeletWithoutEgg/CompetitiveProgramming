@@ -19,10 +19,10 @@
 #define TAK(args...) std::ostream& operator<<(std::ostream &O, args)
 #define NIE(STL, BEG, END, OUT) template <typename ...T> TAK(std::STL<T...> v) \
     { O << BEG; int f=0; for(auto e: v) O << (f++ ? ", " : "") << OUT; return O << END; }
-NIE(deque, "[", "]", e); NIE(vector, "[", "]", e); NIE(set, "{", "}", e);
-NIE(multiset, "{", "}", e); NIE(unordered_set, "{", "}", e);
-NIE(map , "{", "}", e.first << ":" << e.second);
-NIE(unordered_map , "{", "}", e.first << ":" << e.second);
+NIE(deque, "[", "]", e) ; NIE(vector, "[", "]", e)
+NIE(set, "{", "}", e) ; NIE(multiset, "{", "}", e) ; NIE(unordered_set, "{", "}", e)
+NIE(map , "{", "}", e.first << ":" << e.second)
+NIE(unordered_map , "{", "}", e.first << ":" << e.second)
 template <typename ...T> TAK(std::pair<T...> p) { return O << '(' << p.first << ',' << p.second << ')'; }
 template <typename T, size_t N> TAK(std::array<T,N> a) { return O << std::vector<T>(a.begin(), a.end()); }
 template <typename ...T> TAK(std::tuple<T...> t) {
@@ -57,15 +57,15 @@ public:
     constexpr static int width = sizeof(T) * 8 - 1;
     REFOP(+=, v += rhs.v - MOD, v += MOD & (v >> width)) ; REFOP(-=, v -= rhs.v, v += MOD & (v >> width))
     // fits for MOD^2 <= 9e18
-    REFOP(*=, v = 1LL * v * rhs.v % MOD) ; REFOP(/=, v = 1LL * v * inverse(rhs.v) % MOD)
-#define VALOP(type, op) friend Modular operator type (Modular lhs, const Modular &rhs) { return lhs op rhs; }
-    VALOP(+, +=) ; VALOP(-, -=) ; VALOP(*, *=) ; VALOP(/, /=)
+    REFOP(*=, v = 1LL * v * rhs.v % MOD) ; REFOP(/=, *this *= inverse(rhs.v))
+#define VALOP(op) friend Modular operator op (Modular a, const Modular &b) { return a op##= b; }
+    VALOP(+) ; VALOP(-) ; VALOP(*) ; VALOP(/)
     Modular operator-() const { return 0 - *this; }
     friend bool operator == (const Modular &lhs, const Modular &rhs) { return lhs.v == rhs.v; }
     friend bool operator != (const Modular &lhs, const Modular &rhs) { return lhs.v != rhs.v; }
-    friend std::istream & operator>>(std::istream &I, Modular &m) { return I >> m.v, m.v = (m.v % MOD + MOD) % MOD, I; }
-    friend std::ostream & operator<<(std::ostream &O, Modular &m) { return O << m.v; }
-    friend Modular operator^(Modular e, size_t p) {
+    friend std::istream & operator>>(std::istream &I, Modular &m) { T x; I >> x, m = Modular(x); return I; }
+    friend std::ostream & operator<<(std::ostream &O, const Modular &m) { return O << m.v; }
+    friend Modular power(Modular e, uint64_t p) { // 0^0 = 1
         Modular r = 1;
         while(p) (p&1) && (r *= e), e *= e, p >>= 1;
         return r;
@@ -77,8 +77,8 @@ private:
         T u = 0, v = 1, m = MOD;
         while (a != 0) {
             T t = m / a;
-            m -= t * a; swap(a, m);
-            u -= t * v; swap(u, v);
+            m -= t * a; std::swap(a, m);
+            u -= t * v; std::swap(u, v);
         }
         assert(m == 1);
         return u;
@@ -94,14 +94,14 @@ typedef pair<ld,ld> pld;
 template <typename T> using max_heap = std::priority_queue<T,vector<T>,less<T> >;
 template <typename T> using min_heap = std::priority_queue<T,vector<T>,greater<T> >;
 template <typename T> using rbt = tree<T,null_type,less<T>,rb_tree_tag,tree_order_statistics_node_update>;
-template <typename V, typename T> int get_pos(V v, T x) { return int(lower_bound(begin(v),end(v),x)-begin(v)); }
-template <typename V> void sort_uni(V &v) { sort(begin(v),end(v)),v.erase(unique(begin(v),end(v)),end(v)); }
+template <typename V, typename T> int get_pos(const V &v, T x) { return lower_bound(all(v),x) - begin(v); }
+template <typename V> void sort_uni(V &v) { sort(all(v)), v.erase(unique(all(v)),end(v)); }
 constexpr inline ll cdiv(ll x, ll m) { return x/m + (x%m ? (x<0) ^ (m>0) : 0); } // ceiling divide
 // constexpr inline ll modpow(ll e,ll p,ll m=MOD) { ll r=1; for(e%=m;p;p>>=1,e=e*e%m) if(p&1) r=r*e%m; return r; }
 
 constexpr ld PI = acos(-1), eps = 1e-7;
-constexpr ll N = 1000025, INF = 1e18, MOD = 1000000007, K = 14699, inf = 1e9;
-using Mint = Modular<int32_t, MOD>;
+constexpr ll N = 500025, INF = 1e18, MOD = 1000000007, K = 14699, inf = 1e9;
+using Mint = Modular<int, MOD>;
 
 signed main() {
     ios_base::sync_with_stdio(0), cin.tie(0);
