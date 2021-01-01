@@ -3,24 +3,9 @@
 using namespace std;
 
 signed main() {
-    int mp[7][7] = {
-        {0, 0, 0, 0, 0, 0, 0},
-        {0, 1, 1, 1, 1, 1, 0},
-        {0, 1, 0, 0, 0, 1, 0},
-        {0, 1, 1, 1, 0, 1, 0},
-        {0, 0, 0, 0, 0, 1, 0},
-        {1, 1, 1, 1, 1, 1, 0},
-        {0, 0, 0, 0, 0, 0, 0}
-    };
-    int n = 7 * 7, m = 18;
-    cout << 14 << ' ' << 14 << ' ' << n << ' ' << m << '\n';
-    cout << 13 << ' ' << 1 << '\n';
-    cout << 5 << ' ' << 5 << '\n';
-    for(int i = 0; i < 7; i++) for(int j = 0; j < 7; j++) {
-        cout << i*2 << ' ' << j*2 << ' ' << (i+1)*2 << ' ' << (j+1)*2 << '\n';
-    }
-    for(int i = 0; i < 7; i++) for(int j = 0; j < 7; j++) if(mp[i][j]) {
-        cout << i*2+1 << ' ' << j*2+1 << '\n';
-    }
-    cout << '\n';
+    const int n = 10000000;
+    mt19937 rng(7122);
+    cout << n << '\n';
+    for(int i = 0; i < n; i++)
+        cout << uniform_int_distribution<int>(0, 10)(rng) << '\n';
 }
