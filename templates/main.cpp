@@ -54,7 +54,6 @@ public:
     template <typename U> explicit operator U() const { return U(v); }
     T operator()() { return v; }
 #define REFOP(type, expr...) Modular &operator type (const Modular &rhs) { return expr, *this; }
-    constexpr static int width = sizeof(T) * 8 - 1;
     REFOP(+=, v += rhs.v - MOD, v += MOD & (v >> width)) ; REFOP(-=, v -= rhs.v, v += MOD & (v >> width))
     // fits for MOD^2 <= 9e18
     REFOP(*=, v = 1LL * v * rhs.v % MOD) ; REFOP(/=, *this *= inverse(rhs.v))
@@ -63,14 +62,10 @@ public:
     Modular operator-() const { return 0 - *this; }
     friend bool operator == (const Modular &lhs, const Modular &rhs) { return lhs.v == rhs.v; }
     friend bool operator != (const Modular &lhs, const Modular &rhs) { return lhs.v != rhs.v; }
-    friend std::istream & operator>>(std::istream &I, Modular &m) { T x; I >> x, m = Modular(x); return I; }
+    friend std::istream & operator>>(std::istream &I, Modular &m) { T x; I >> x, m = x; return I; }
     friend std::ostream & operator<<(std::ostream &O, const Modular &m) { return O << m.v; }
-    friend Modular power(Modular e, uint64_t p) { // 0^0 = 1
-        Modular r = 1;
-        while(p) (p&1) && (r *= e), e *= e, p >>= 1;
-        return r;
-    }
 private:
+    constexpr static int width = sizeof(T) * 8 - 1;
     T v;
     static T inverse(T a) {
         // copy from tourist's template
@@ -102,6 +97,7 @@ constexpr inline ll cdiv(ll x, ll m) { return x/m + (x%m ? (x<0) ^ (m>0) : 0); }
 constexpr ld PI = acos(-1), eps = 1e-7;
 constexpr ll N = 500025, INF = 1e18, MOD = 1000000007, K = 14699, inf = 1e9;
 using Mint = Modular<int, MOD>;
+Mint modpow(Mint e, uint64_t p) { Mint r = 1; while(p) (p&1) && (r *= e), e *= e, p >>= 1; return r; } // 0^0 = 1
 
 signed main() {
     ios_base::sync_with_stdio(0), cin.tie(0);
