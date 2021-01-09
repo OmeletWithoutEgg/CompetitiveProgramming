@@ -13,6 +13,7 @@
 // An AC a day keeps the doctor away.
  
 #ifdef local
+#define _GLIBCXX_DEBUG AC
 #include <bits/extc++.h>
 #define safe std::cerr<<__PRETTY_FUNCTION__<<" line "<<__LINE__<<" safe\n"
 #define debug(args...) qqbx(#args, args)
@@ -91,6 +92,8 @@ template <typename T> using min_heap = std::priority_queue<T,vector<T>,greater<T
 template <typename T> using rbt = tree<T,null_type,less<T>,rb_tree_tag,tree_order_statistics_node_update>;
 template <typename V, typename T> int get_pos(const V &v, T x) { return lower_bound(all(v),x) - begin(v); }
 template <typename V> void sort_uni(V &v) { sort(all(v)), v.erase(unique(all(v)),end(v)); }
+template <typename T> bool chmin(T &x, const T &v) { return v < x ? (x=v, true) : false; }
+template <typename T> bool chmax(T &x, const T &v) { return x < v ? (x=v, true) : false; }
 constexpr inline ll cdiv(ll x, ll m) { return x/m + (x%m ? (x<0) ^ (m>0) : 0); } // ceiling divide
 // constexpr inline ll modpow(ll e,ll p,ll m=MOD) { ll r=1; for(e%=m;p;p>>=1,e=e*e%m) if(p&1) r=r*e%m; return r; }
 
