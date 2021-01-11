@@ -13,7 +13,7 @@
 // An AC a day keeps the doctor away.
  
 #ifdef local
-#define _GLIBCXX_DEBUG AC
+// #define _GLIBCXX_DEBUG AC
 #include <bits/extc++.h>
 #define safe std::cerr<<__PRETTY_FUNCTION__<<" line "<<__LINE__<<" safe\n"
 #define debug(args...) qqbx(#args, args)
