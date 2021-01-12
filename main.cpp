@@ -95,7 +95,7 @@ template <typename V> void sort_uni(V &v) { sort(all(v)), v.erase(unique(all(v))
 template <typename T> bool chmin(T &x, const T &v) { return v < x ? (x=v, true) : false; }
 template <typename T> bool chmax(T &x, const T &v) { return x < v ? (x=v, true) : false; }
 constexpr inline ll cdiv(ll x, ll m) { return x/m + (x%m ? (x<0) ^ (m>0) : 0); } // ceiling divide
-// constexpr inline ll modpow(ll e,ll p,ll m=MOD) { ll r=1; for(e%=m;p;p>>=1,e=e*e%m) if(p&1) r=r*e%m; return r; }
+constexpr inline ll modpow(ll e,ll p,ll m) { ll r=1; for(e%=m;p;p>>=1,e=e*e%m) if(p&1) r=r*e%m; return r; }
 
 constexpr ld PI = acos(-1), eps = 1e-7;
 constexpr ll N = 500025, INF = 1e18, MOD = 1000000007, K = 14699, inf = 1e9;
