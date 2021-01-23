@@ -98,81 +98,10 @@ constexpr inline ll cdiv(ll x, ll m) { return x/m + (x%m ? (x<0) ^ (m>0) : 0); }
 constexpr inline ll modpow(ll e,ll p,ll m) { ll r=1; for(e%=m;p;p>>=1,e=e*e%m) if(p&1) r=r*e%m; return r; }
 
 constexpr ld PI = acos(-1), eps = 1e-7;
-constexpr ll N = 500025, INF = 1e18, MOD = 1000000007, K = 81, inf = 1e9;
+constexpr ll N = 1000001, INF = 1e18, MOD = 1000000007, K = 5, inf = 1e9;
 using Mint = Modular<int, MOD>;
 Mint modpow(Mint e, uint64_t p) { Mint r = 1; while(p) (p&1) && (r *= e), e *= e, p >>= 1; return r; } // 0^0 = 1
 
 signed main() {
     ios_base::sync_with_stdio(0), cin.tie(0);
-    int A, B;
-    cin >> A >> B;
-    vector<vector<int>> d(A+1, vector<int>(B+1));
-    for(int i = 1; i <= A; i++) {
-        for(int j = 1; j <= B; j++) {
-            cin >> d[i][j];
-        }
-    }
-    vector<tuple<int,int,int>> edges;
-    const int n = 101;
-    auto encode = [&](int i, int j) {
-        return i * 2 + j;
-    };
-    auto addEdge = [&](int a, int b, int c) {
-        debug(a, b, c);
-        edges.pb(a, b, c);
-    };
-    for(int i = 1; i < n; i++)
-        addEdge(encode(i-1, 0), encode(i, 0), -1);
-    for(int a = 0; a < n; a++) {
-        for(int b = 0; b < n; b++) {
-            int mx = -inf;
-            for(int i = 1; i <= A; i++) {
-                for(int j = 1; j <= B; j++) {
-                    mx = max(mx, d[i][j] - a * i - b * j);
-                }
-            }
-            // mx >= 0
-            if(mx >= 0) addEdge(encode(a, 0), encode(b, 1), mx);
-        }
-    }
-    for(int i = n-1; i >= 1; i--)
-        addEdge(encode(i, 1), encode(i-1, 1), -2);
-    debug(edges);
-    vector<int> dis(n*2);
-    for(int i = 1; i <= A; i++) {
-        for(int j = 1; j <= B; j++) {
-            for(int t = 1; t < n*2; t++) dis[t] = -1;
-            dis[0] = 0;
-            for(int t = 0; ; t++) {
-                bool relax = false;
-                for(auto [a, b, c]: edges) {
-                    if(c == -1) {
-                        c = i;
-                    } else if(c == -2) {
-                        c = j;
-                    } else assert(c >= 0);
-                    if(dis[b] == -1 || dis[b] > dis[a] + c)
-                        dis[b] = dis[a] + c, relax = true;
-                }
-                if(!relax) break;
-                assert(t == 0);
-            }
-            debug(dis);
-            debug(dis[encode(0, 1)], d[i][j]);
-            if(dis[encode(0, 1)] != d[i][j])
-                return cout << "Impossible\n", 0;
-        }
-    }
-    cout << "Possible\n";
-    cout << n*2 << ' ' << edges.size() << '\n';
-    for(auto [a, b, c]: edges) {
-        cout << a+1 << ' ' << b+1 << ' ';
-        if(c == -1)
-            cout << "X\n";
-        else if(c == -2)
-            cout << "Y\n";
-        else
-            cout << c << '\n';
-    }
-    cout << 1 << ' ' << encode(0, 1)+1 << '\n';
 }
