@@ -6,7 +6,7 @@ A = [input() for i in range(n)]
 res = []
 for i in range(n):
     for j in range(m):
-        if A[i][j] == '.' and (i != sx or j != sy) and(i != tx or j != ty):
+        if A[i][j] == '#' and (i != sx or j != sy) and(i != tx or j != ty):
             res.append((i, j, int(random.random() * 10000)))
 
 print(n, m)

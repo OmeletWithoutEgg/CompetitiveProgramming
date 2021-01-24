@@ -6,8 +6,8 @@ from getpass import *
 
 # config
 
-upload_input = False
-upload_output = False
+upload_input = True
+upload_output = True
 input_suffix = '.in'
 output_suffix = '.out'
 input_prefix = 'tests/'
