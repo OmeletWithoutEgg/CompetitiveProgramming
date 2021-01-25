@@ -2,6 +2,6 @@
 This repo contains code about competitive programming.
 
 # TODO
-- [ ] 出北市賽 2018
+- [x] 出北市賽 2018
 - [ ] 補CF題？
 
