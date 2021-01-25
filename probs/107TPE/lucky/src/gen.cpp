@@ -11,12 +11,11 @@ template <typename ...T> string format(const char *s, T &&...args) {
 void gen(string filename, int minn, int maxn, bool eq, bool small) {
     int n = rnd.next(minn, maxn);
     int m = eq ? n : rnd.next(minn, maxn);
-    Array2d a(n);
     int minc = -100, maxc = 100;
     if(small)
         minc = rnd.next(-1000, -150), maxc = rnd.next(-20, 20);
-    for(int i = 0; i < n; i++)
-        a[i] = Array::random(m, minc, maxc);
+    Array2d a = Array2d::randomf(n, [m, minc, maxc](){ return Array::random(m, minc, maxc); });
+
     for(int i = 0; i < n; i++)
         for(int j = 0; j < m; j++)
             a[i][j] = clamp(a[i][j], -100, 100);
