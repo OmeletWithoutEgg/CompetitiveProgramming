@@ -13,6 +13,3 @@ done
 
 rm gen
 rm sol
-
-# for i in $(seq -w 0 39); do
-#     ./na
