@@ -14,5 +14,9 @@ done
 rm gen
 rm sol
 
-# for i in $(seq -w 0 39); do
-#     ./na
+g++ src/naive.cpp -o naive -std=c++17 -Wall -Wextra -Dlocal -fsanitize=undefined -fsanitize=address -Ofast
+for i in $(seq -w 0 39); do
+    ./naive <tests/$i.in >tests/tmp.out
+    diff tests/tmp.out tests/$i.out
+    rm tests/tmp.out
+done

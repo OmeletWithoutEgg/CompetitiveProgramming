@@ -45,6 +45,8 @@ signed main() {
     ios_base::sync_with_stdio(0), cin.tie(0);
     int n;
     cin >> n;
+    if(n > 4000)
+        return cout << "MLE/TLE.\n", 0;
     vector<array<int,2>> v(n);
     for(int i = 0; i < n; i++) for(int j = 0; j < 2; j++) cin >> v[i][j];
     sort(all(v));
