@@ -40,23 +40,43 @@ public:
 };
 
 using ld = long double;
+using ll = long long;
+using LLL = __int128;
+ostream & operator<<(ostream &O, LLL x) {
+    if(!x)
+        return O << 0;
+    if(x < 0)
+        O << '-', x = -x;
+    string s;
+    while(x) s += char('0' + x % 10), x /= 10;
+    reverse(s.begin(), s.end());
+    return O << s;
+}
 const int inf = 1e9;
 
 struct Line {
-    ld a, b; // ax+b
-    Line(int a, int b) : a(a), b(b) {}
+    ll a, b, s;
+    // y = (ax+b) / s
+    Line(int a, int b) : a(a), b(b), s(1) {}
     Line(array<int,2> A, array<int,2> B) {
-        a = (A[1] - B[1]) / ld(A[0] - B[0]);
-        b = A[1] - A[0] * a;
+        if(A[0] < B[0]) swap(A, B);
+        s = A[0] - B[0];
+        a = A[1] - B[1];
+        b = A[1] * s - A[0] * a;
+        assert(s > 0);
+        // a = (A[1] - B[1]) / ld(A[0] - B[0]);
+        // b = A[1] - A[0] * a;
     }
     friend array<ld,2> operator&(const Line &l1, const Line &l2) {
         // l1.a * x + l1.b = l2.a * x + l2.b
-        ld x = (l2.b - l1.b) / ld(l1.a - l2.a);
-        ld y = l1.a * x + l1.b;
+        // cerr << "x = " << (LLL(l2.b) * l1.s - LLL(l1.b) * l2.s) << '/' << (l1.a * l2.s - l2.a * l1.s) << '\n';
+        ld x = (ld(l2.b) * l1.s - ld(l1.b) * l2.s) / ld(l1.a * l2.s - l2.a * l1.s);
+        ld y = (l1.a * x + l1.b) / ld(l1.s);
+        cerr << (LLL(l2.b) * l1.s - LLL(l1.b) * l2.s) - LLL((l1.a * l2.s - l2.a * l1.s) * x) << " error in " << l1.a * l2.s - l2.a * l1.s << '\n';
         return {x, y};
     }
     friend bool operator<(const Line &lhs, const Line &rhs) {
-        return lhs.a < rhs.a;
+        return lhs.a * rhs.s < rhs.a * lhs.s;
     }
     friend ostream & operator<<(ostream &O, const Line &L) {
         return O << "y = " << L.a << "x + " << L.b;
