@@ -9,15 +9,28 @@ template <typename ...T> string format(const char *s, T &&...args) {
 }
 
 void randomGen(string filename, int minn, int maxn, int maxc) {
-    int n = rnd.next(minn/2, maxn/2) * 2;
-    auto X = Array::randomUnique(n, -maxc, maxc);
-    auto Y = Array::random(n, -maxc, maxc);
+    int n = rnd.next(minn/2, maxn/2);
     ofstream fout(filename);
-    fout << n << '\n';
-    for(int i = 0; i < n; i++)
-        fout << X[i] << ' ' << Y[i] << '\n';
+    fout << n*2 << '\n';
+
+    auto gen = [&](int cx, int cy, int dx, int dy) {
+        int lx = cx - dx/2, rx = cx + dx/2;
+        int ly = cy - dy/2, ry = cy + dy/2;
+        auto X = Array::randomUnique(n, lx, rx);
+        auto Y = Array::random(n, ly, ry);
+        for(int i = 0; i < n; i++) {
+            fout << X[i] << ' ' << Y[i] << '\n';
+        }
+    };
+    int cx1 = rnd.next(-maxc * 0.7, -maxc * 0.3), cy1 = rnd.next(-maxc, maxc);
+    int cx2 = rnd.next(maxc * 0.3, maxc * 0.7), cy2 = rnd.next(-maxc, maxc);
+    int dx1 = rnd.next(maxc / 5, maxc / 3), dy1 = rnd.next(maxc / 5, maxc / 3);
+    int dx2 = rnd.next(maxc / 5, maxc / 3), dy2 = rnd.next(maxc / 5, maxc / 3);
+    gen(cx1, cy1, dx1, dy1);
+    gen(cx2, cy2, dx2, dy2);
+
     fout.close();
-    cerr << filename << ' ' << n << " ok\n";
+    cerr << filename << ' ' << n*2 << " ok\n";
 }
 
 Polygon randomPolygon(int n, int C) {
@@ -38,10 +51,12 @@ void genBigPolygon(string filename, int minn, int maxn, int maxc) {
     d.polygon(P2.shift(S2));
     d.dumpSvg("polygon.svg");
     */
-    auto P = (P1.shift(S1) + P2.shift(S2)).sorted();
-    P.erase(unique(P.begin(), P.end(), [](Point a, Point b){ return a.x == b.x; }), P.end());
+    P1.sort(), P2.sort();
+    P1.erase(unique(P1.begin(), P1.end(), [](Point a, Point b){ return a.x == b.x; }), P1.end());
+    P2.erase(unique(P2.begin(), P2.end(), [](Point a, Point b){ return a.x == b.x; }), P2.end());
+    size_t sz = min(P1.size(), P2.size());
     ofstream fout(filename);
-    fout << P.choice(P.size() / 2 * 2).shuffle().printN() << '\n';
+    fout << (P1.shift(S1).choice(sz) + P2.shift(S2).choice(sz)).shuffle().printN() << '\n';
     fout.close();
     cerr << filename << ' ' << n*2 << " ok\n";
 }
