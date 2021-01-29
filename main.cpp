@@ -98,10 +98,30 @@ constexpr inline ll cdiv(ll x, ll m) { return x/m + (x%m ? (x<0) ^ (m>0) : 0); }
 constexpr inline ll modpow(ll e,ll p,ll m) { ll r=1; for(e%=m;p;p>>=1,e=e*e%m) if(p&1) r=r*e%m; return r; }
 
 constexpr ld PI = acos(-1), eps = 1e-7;
-constexpr ll N = 1000001, INF = 1e18, MOD = 1000000007, K = 5, inf = 1e9;
+constexpr ll N = 300001, INF = 1e18, MOD = 1000000007, K = 5, inf = 1e9;
 using Mint = Modular<int, MOD>;
 Mint modpow(Mint e, uint64_t p) { Mint r = 1; while(p) (p&1) && (r *= e), e *= e, p >>= 1; return r; } // 0^0 = 1
 
 signed main() {
     ios_base::sync_with_stdio(0), cin.tie(0);
+    int n;
+    cin >> n;
+    if(n <= 2)
+        return cout << 0 << '\n', 0;
+    Mint inv2 = 1 / Mint(2);
+    vector<Mint> pw(n), inv(n);
+    pw[0] = inv[1] = 1;
+    for(int i = 1; i < n; i++) pw[i] = pw[i-1] * (n-1);
+    for(int i = 2; i < n; i++) inv[i] = inv[MOD % i] * (- MOD / i);
+    Mint C = 1, ans = 0;
+    for(int i = 0; i <= n-2; i++) {
+        if(i) {
+            C *= n-2-i+1;
+            C *= inv[i];
+        }
+        debug(C, n-2, i, pw[n-2-i], n-2-i);
+        ans += C * pw[n-2-i] * i * (i+1) / 2;
+    }
+    debug(ans, modpow(n,n-2));
+    cout << ans / modpow(n, n-3) << '\n';
 }

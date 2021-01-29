@@ -1,104 +1,127 @@
 #include <bits/stdc++.h>
-// challenge: not using namespace std
+#ifdef local
+#define debug(args...) qqbx(#args, args)
+template <typename ...T> void qqbx(const char *s, T ...args) {
+    int cnt = sizeof...(T);
+    ((std::cerr << "\033[1;32m(" << s << ") = (") , ... , (std::cerr << args << (--cnt ? ", " : ")\033[0m\n")));
+}
+#define TAK(args...) std::ostream& operator<<(std::ostream &O, args)
+#define NIE(STL, BEG, END, OUT) template <typename ...T> TAK(std::STL<T...> v) \
+    { O << BEG; int f=0; for(auto e: v) O << (f++ ? ", " : "") << OUT; return O << END; }
+NIE(vector, "[", "]", e)
+#else
+#define debug(...) ((void)0)
+#endif // local
+#define pb emplace_back
+#define all(v) begin(v),end(v)
+#define sort_uni(v) sort(all(v)), v.erase(unique(all(v)),v.end())
+#define get_pos(v,x) int(lower_bound(all(v),x)-v.begin())
 
-struct Segtree {
-    struct tag {
-        int64_t a, b; // ax + b
-        tag & operator+=(const tag &rhs) {
-            // return rhs(*this(x))
-            a *= rhs.a;
-            b = rhs.a * b + rhs.b;
-            return *this;
-        }
-        tag() : a(1), b(0) {}
-        tag(int a, int b) : a(a), b(b) {}
-    };
-    struct node {
-        int64_t mx, sum, len;
-        node(int c = 0) : mx(c), sum(c), len(1) {}
-        friend node operator+(const node &lhs, const node &rhs) {
-            node c;
-            c.mx = std::max(lhs.mx, rhs.mx);
-            c.sum = lhs.sum + rhs.sum;
-            c.len = lhs.len + rhs.len;
-            return c;
-        }
-        node & operator+=(const tag &t) {
-            mx = t.a * mx + t.b;
-            sum = t.a * sum + t.b * len;
-            return *this;
-        }
-    };
+using namespace std;
+const int N = 300001;
 
-    std::vector<node> st;
-    std::vector<tag> lz;
-    size_t sz;
-    Segtree(const std::vector<int> &a) : st(a.size()*2), lz(a.size()), sz(a.size()) {
-        for(size_t i = 0; i < sz; i++) st[i + sz] = node(a[i]);
-        for(size_t i = sz-1; i > 0; i--) st[i] = st[i<<1] + st[i<<1|1];
-    }
-    void pull(size_t p) {
-        for(; p>1; p>>=1)
-            st[p>>1] = st[p] + st[p^1], st[p>>1] += lz[p>>1];
-    }
-    void upd(size_t p, tag t) {
-        st[p] += t;
-        if(p < sz) lz[p] += t;
-    }
-    void push(size_t p) {
-        for(int h = std::__lg(sz); h >= 0; h--) {
-            size_t i = p >> h;
-            upd(i, lz[i>>1]);
-            upd(i^1, lz[i>>1]);
-            lz[i>>1] = tag();
+vector<int> g[N], stk, bccv[N];
+int vis[N], low[N], tot;
+int bccn, bcc[N];
+bool ap[N];
+void dfs(int i, int p) {
+    int child = 0;
+    vis[i] = low[i] = ++tot;
+    stk.pb(i);
+    for(int j: g[i]) {
+        if(j == p) continue;
+        if(vis[j]) {
+            low[i] = min(low[i], vis[j]);
+        } else {
+            ++child;
+            dfs(j, i);
+            if(low[j] >= vis[i]) {
+                int x;
+                do {
+                    x = stk.back(), stk.pop_back();
+                    bcc[x] = bccn;
+                    bccv[bccn].pb(x);
+                } while(x != j);
+                bcc[i] = bccn;
+                bccv[bccn].pb(i);
+                ++bccn;
+                ap[i] = true;
+            }
+            low[i] = min(low[i], low[j]);
         }
     }
-    void add(size_t l, size_t r, tag t) {
-        size_t tl = l, tr = r;
-        push(l + sz), push(r - 1 + sz);
-        for(l += sz, r += sz; l < r; l >>= 1, r >>= 1) {
-            if(l & 1) upd(l++, t);
-            if(r & 1) upd(--r, t);
+    if(p == -1 && child == 1)
+        ap[i] = false;
+}
+vector<int> tr[N*2];
+int in[N*2], ou[N*2], cnt;
+int pa[20][N*2], dep[N*2];
+bool isap[N*2];
+bool isAnc(int p, int i) {
+    return in[p] <= in[i] && in[i] < ou[p];
+}
+void DFS(int i, int p) {
+    in[i] = cnt++;
+    for(int j: tr[i]) {
+        if(j != p) {
+            pa[0][j] = i;
+            dep[j] = dep[i] + 1;
+            DFS(j, i);
         }
-        pull(tl + sz), pull(tr - 1 + sz);
     }
-    node query(size_t l, size_t r) {
-        node res;
-        res.len = res.sum = res.mx = 0;
-        push(l + sz), push(r - 1 + sz);
-        for(l += sz, r += sz; l < r; l >>= 1, r >>= 1) {
-            if(l & 1) res = res + st[l++];
-            if(r & 1) res = res + st[--r];
-        }
-        return res;
-    }
-};
-
+    ou[i] = cnt;
+}
+int LCA(int a, int b) {
+    if(dep[a] > dep[b]) swap(a, b);
+    int d = dep[b] - dep[a];
+    for(int i = 19; i >= 0; i--) if(d >> i & 1) b = pa[i][b];
+    if(a == b) return 0;
+    for(int i = 19; i >= 0; i--) if(pa[i][a] != pa[i][b]) a = pa[i][a], b = pa[i][b];
+    return pa[0][a];
+}
+bool ok(int a, int b, int c) {
+    int lca = LCA(a, b);
+    if(!isap[lca] && c==pa[0][lca]) return true;
+    if(isap[c] && ok(a, b, pa[0][c])) return true;
+    if(isAnc(lca, c) && (isAnc(c, a) || isAnc(c, b))) return true;
+    if(isAnc(c, lca) && (isAnc(a, b) || isAnc(b, a))) return true;
+    return false;
+}
 signed main() {
-    std::ios_base::sync_with_stdio(0), std::cin.tie(0);
-    int n, q;
-    std::cin >> n >> q;
-    std::vector<int> a(n);
-    for(int i = 0; i < n; i++)
-        std::cin >> a[i];
-    Segtree sgt(a);
-    while(q--) {
-        int k, l, r;
-        std::cin >> k >> l >> r;
-        --l;
-        if(k == 1) {
-            int x;
-            std::cin >> x;
-            sgt.add(l, r, Segtree::tag(0, x));
-        } else if(k == 2) {
-            int x;
-            std::cin >> x;
-            sgt.add(l, r, Segtree::tag(1, x));
-        } else if(k == 3) {
-            std::cout << sgt.query(l, r).sum << '\n';
-        } else if(k == 4) {
-            std::cout << sgt.query(l, r).mx << '\n';
-        }
+    ios_base::sync_with_stdio(0), cin.tie(0);
+    int n, m, q;
+    cin >> n >> m >> q;
+    for(int i = 0; i < m; i++) {
+        int a, b;
+        cin >> a >> b;
+        --a, --b;
+        g[a].pb(b), g[b].pb(a);
     }
-
+    dfs(0, -1);
+    for(int i = 0; i < n; i++) if(ap[i]) {
+        bcc[i] = bccn++;
+        isap[bcc[i]] = true;
+    }
+    debug(bccn);
+    for(int i = 0; i < bccn && i < N; i++)
+        for(int j: bccv[i])
+            if(ap[j])
+                tr[i].pb(bcc[j]), tr[bcc[j]].pb(i);
+    for(int i = 0; i < bccn; i++)
+        sort_uni(tr[i]), debug(i, tr[i]);
+    DFS(0, -1);
+    // return 0;
+    for(int L = 1; L < 20; L++)
+        for(int i = 0; i < bccn; i++)
+            pa[L][i] = pa[L-1][pa[L-1][i]];
+    while(q--) {
+        int a, b, c;
+        cin >> a >> b >> c;
+        --a, --b, --c;
+        a = bcc[a], b = bcc[b], c = bcc[c];
+        if(ok(a, b, c) || ok(c, a, b) || ok(b, c, a))
+            cout << "Yes\n";
+        else
+            cout << "No\n";
+    }
 }
