@@ -104,24 +104,4 @@ Mint modpow(Mint e, uint64_t p) { Mint r = 1; while(p) (p&1) && (r *= e), e *= e
 
 signed main() {
     ios_base::sync_with_stdio(0), cin.tie(0);
-    int n;
-    cin >> n;
-    if(n <= 2)
-        return cout << 0 << '\n', 0;
-    Mint inv2 = 1 / Mint(2);
-    vector<Mint> pw(n), inv(n);
-    pw[0] = inv[1] = 1;
-    for(int i = 1; i < n; i++) pw[i] = pw[i-1] * (n-1);
-    for(int i = 2; i < n; i++) inv[i] = inv[MOD % i] * (- MOD / i);
-    Mint C = 1, ans = 0;
-    for(int i = 0; i <= n-2; i++) {
-        if(i) {
-            C *= n-2-i+1;
-            C *= inv[i];
-        }
-        debug(C, n-2, i, pw[n-2-i], n-2-i);
-        ans += C * pw[n-2-i] * i * (i+1) / 2;
-    }
-    debug(ans, modpow(n,n-2));
-    cout << ans / modpow(n, n-3) << '\n';
 }

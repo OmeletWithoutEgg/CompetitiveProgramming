@@ -6,8 +6,8 @@ using cd = complex<long double>;
 const long double PI = acos(-1);
 
 signed main() {
-    int n = 20;
-    int q = 20;
+    int n = 300;
+    int q = 300;
     cout << n << ' ' << q << '\n';
     mt19937 rng(712);
     for(int i = 0; i < n; i++)

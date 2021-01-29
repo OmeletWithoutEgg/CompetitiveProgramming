@@ -43,35 +43,30 @@ struct Segtree {
             c.len = lhs.len + rhs.len;
             c.mxcnt = (lhs.mx==c.mx ? lhs.mxcnt : 0) + (rhs.mx==c.mx ? rhs.mxcnt : 0);
             c.sum = lhs.sum + rhs.sum;
+            assert(c.mx != c.smx);
             return c;
         }
         bool operator==(const node rhs) const {
-            return mx==rhs.mx && smx == rhs.smx && len == rhs.len && mxcnt == rhs.mxcnt && sum == rhs.sum;
+            return mx == rhs.mx && smx == rhs.smx && len == rhs.len && mxcnt == rhs.mxcnt && sum == rhs.sum;
         }
         friend ostream & operator<<(ostream &O, node p) {
             return O << "mx = " << p.mx << "; smx = " << p.smx << "; len = " << p.len;
         }
         node & operator+=(const tag &t) {
-            assert(t.b > smx + t.a);
-            if(t.b >= mx + t.a) {
-                if(t.a == 0) return *this;
-                // debug(t.a, t.b);
-                // debug(sum, t.a, len);
-                mx += t.a;
-                smx += t.a;
-                sum += t.a * len;
-                // debug(sum);
-                return *this;
+            mx += t.a;
+            smx += t.a;
+            sum += t.a * len;
+            assert(t.b >= smx);
+            if(t.b < mx) {
+                sum -= mxcnt * (mx - t.b);
+                mx = t.b;
             }
-            // debug(mx, t.b, len);
-            sum -= mxcnt * (mx - t.b);
-            mx = t.b;
             return *this;
         }
     } st[N<<2];
 
     void push(int p) {
-        if(lz[p] == tag()) return;
+        // if(lz[p] == tag()) return;
         debug("PUSH", p);
         st[p<<1] += lz[p];
         lz[p<<1] += lz[p];
@@ -98,7 +93,7 @@ struct Segtree {
     }
     void modify(tag t, int ql, int qr, int l, int r, int id) {
         if(r <= ql || l >= qr) return;
-        // cerr << "safe\n";
+        if(l+1 != r) push(id);
         if(ql <= l && r <= qr && (t.b > st[id].smx + t.a)) {
             debug(lz[id].a, lz[id].b);
             // assert(lz[id] == tag());
@@ -107,19 +102,15 @@ struct Segtree {
             // debug(l, r, st[id].sum);
             return;
         }
-        if(l+1 != r)
-            debug(l, r), push(id);
         int m = l+(r-l)/2;
         modify(t, ql, qr, l, m, id<<1);
         modify(t, ql, qr, m, r, id<<1|1);
-        if(l+1 != r)
-            pull(id);
+        if(l+1 != r) pull(id);
     }
     node query(int ql, int qr, int l, int r, int id) {
         // debug(ql, qr, l, r, id);
         if(r <= ql || l >= qr) return node();
-        if(l+1 != r)
-            push(id);
+        if(l+1 != r) debug("QUERY-PUSH", l, r), push(id);
         if(ql <= l && r <= qr)
             return st[id];
         int m = l+(r-l)/2;
@@ -186,6 +177,6 @@ signed main() {
             throw;
         debug(q);
         // for(int i = 0; i < n; i++) cerr << sgt.query(i, i+1, 0, n, 1).mx << ' ' << sgt.query(i, i+1, 0, n, 1).sum << '\n';
-        // sgt.pr(n);
+        // if(q <= 3) sgt.pr(n);
     }
 }
