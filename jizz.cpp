@@ -1,55 +1,92 @@
-#pragma GCC optmize("Ofast")
-#pragma loop_opt(on)
 #include <bits/stdc++.h>
-#define pb emplace_back
+#ifdef local
+#define debug(args...) qqbx(#args, args)
+template <typename ...T> void qqbx(const char *s, T ...args) {
+    int cnt = sizeof...(T);
+    ((std::cerr << "(" << s << ") = (") , ... , (std::cerr << args << (--cnt ? ", " : ")\n")));
+}
+#else
+#define debug(...) ((void)0)
+#endif // local
 
 using namespace std;
-using ll = long long;
-const int MOD = 1000000007, N = 210025, K = 256, B = 256;
+const int N = 200025, inf = 1e9;
+const int64_t INF = 1e18;
 
-struct Query {
-    int l, r, id;
-} Q[N];
 
-struct Segtree {
-    int mn[1 << 19];
-    int n = 1 << 18;
-    void init() {
-        for(int i = 0; i < n*2; i++) mn[i] = -1e9;
+ostream & operator<<(ostream &O, vector<int> v) {
+    int f = 0;
+    O << "[";
+    for(int x: v)
+        O << (f++ ? ", " : "") << x;
+    return O << "]";
+}
+
+vector<int> getZ(string s) {
+    vector<int> Z(s.size());
+    Z[0] = s.size();
+    for(int i = 1, j = 0, r = 0; i < s.size(); i++) {
+        Z[i] = max(min(Z[i-j], r-i), 0);
+        while(i+Z[i] < s.size() && s[Z[i]] == s[i+Z[i]])
+            ++Z[i], j = i, r = i+Z[i];
     }
-    void edit(int p, int d) {
-        for(mn[p+=n] = d; p>0; p>>=1)
-            mn[p>>1] = min(mn[p], mn[p^1]);
+    return Z;
+}
+vector<int> getKMP(string s) {
+    vector<int> fail(s.size());
+    fail[0] = -1;
+    for(int i = 1, j = -1; i < s.size(); i++) {
+        while(j != -1 && s[j+1] != s[i]) j = fail[j];
+        if(s[j+1] == s[i]) ++j;
+        fail[i] = j;
     }
-    int bsearch(int k) {
-        int i = 1;
-        while(i < n) {
-            i <<= 1;
-            if(mn[i] >= k)
-                i |= 1;
+    return fail;
+}
+vector<int> recover(vector<int> fail) {
+    int n = fail.size();
+    vector<int> Z(n);
+    Z[0] = n;
+    for(int i = 1; i < n; i++) {
+        if(fail[i] != -1)
+            Z[i-fail[i]] = max(Z[i-fail[i]], fail[i]+1);
+    }
+    for(int i = 1; i < n; i++) {
+        int j = i-fail[i];
+        if(i-j>=0)
+            Z[i] = max(Z[i], min(Z[i-j], j+Z[j]-i));
+    }
+    return Z;
+    for(int i = 1, j = 0, r = 0; i < n; i++) {
+        Z[i] = max(Z[i], min(Z[i-j], r-i));
+        if(i+Z[i] > r) {
+            j = i;
+            r = i+Z[i];
         }
-        return i - n;
     }
-} sgt;
-int ans[N], v[N], last[N];
+    return Z;
+}
+random_device rd;
+mt19937 rng(rd());
 signed main() {
     ios_base::sync_with_stdio(0), cin.tie(0);
-    int n, q;
-    cin >> n >> q;
-    for(int i = 0; i < n; i++) cin >> v[i], last[v[i]] = -1;
-    for(int i = 0; i < q; i++) {
-        cin >> Q[i].l >> Q[i].r, --Q[i].l, --Q[i].r;
-        Q[i].id = i;
+    string s;
+    s = "cccbcccc";
+    debug(s);
+    debug(getKMP(s));
+    debug(getZ(s));
+    debug(recover(getKMP(s)));
+    assert(recover(getKMP(s)) == getZ(s));
+    /*
+    int t;
+    cin >> t;
+    while(t--) {
+        int n;
+        cin >> n;
+        vector<int> fail(n);
+        for(int i = 0; i < n; i++) cin >> fail[i];
+        vector<int> Z = recover(fail);
+        for(int i = 0; i < n; i++)
+            cout << Z[i] << (i+1==n ? '\n' : ' ');
     }
-    sort(Q, Q+q, [](Query a, Query b){ return a.r < b.r; });
-    sgt.init();
-    for(int i = 0, j = 0; i < q; i++) {
-        while(j <= Q[i].r) {
-            sgt.edit(v[j], j);
-            ++j;
-        }
-        ans[Q[i].id] = sgt.bsearch(Q[i].l);
-    }
-    for(int i = 0; i < q; i++)
-        cout << ans[i] << '\n';
+    */
 }

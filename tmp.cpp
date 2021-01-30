@@ -1,182 +1,82 @@
-#include <bits/stdc++.h>
-#ifdef local
-#define debug(args...) qqbx(#args, args)
-template <typename ...T> void qqbx(const char *s, T ...args) {
-    int cnt = sizeof...(T);
-    ((std::cerr << "(" << s << ") = (") , ... , (std::cerr << args << (--cnt ? ", " : ")\n")));
+#pragma GCC optimize("Ofast")
+#pragma GCC target("avx,avx2,avx512bw,avx512cd,avx512f,avx512dq,avx512vl,avx512vnni")
+#include <cstdio>
+#include <cstring>
+#include <algorithm>
+
+const int K = 16;
+typedef int v16i __attribute__ ((vector_size (K * sizeof(int))));
+
+struct Query {
+    int v, l, r, c, k, id;
+    friend bool operator<(const Query &a, const Query &b) {
+        return a.v != b.v ? a.v < b.v : a.r < b.r;
+    }
+} Q[300125];
+int ans[200125];
+int pref[100125];
+int n, q;
+void add(int p) {
+    v16i v;
+    for(int i = p; i <= n; i += K) {
+        memcpy(&v, &pref[i], sizeof(v16i));
+        v += 1;
+        memcpy(&pref[i], &v, sizeof(v16i));
+        // for(int j = 0; j < K; j++)
+        //     pref[i+j] += 1;
+    }
 }
-#else
-#define debug(...) ((void)0)
-#endif // local
-
-using namespace std;
-const int N = 200025, inf = 1e9;
-const int64_t INF = 1e18;
-
-struct Segtree {
-    struct tag {
-        int64_t a;
-        int64_t b;
-        // x := min(x+a, b)
-        tag() : a(0), b(INF) {}
-        tag(int64_t a, int64_t b) : a(a), b(b) {}
-        tag & operator+=(const tag &rhs) {
-            // min(min(x+a+c, b+c), d);
-            a += rhs.a;
-            b = min(rhs.b, b+rhs.a);
-            return *this;
-        }
-        bool operator==(tag t) {
-            return a==t.a && b==t.b;
-        }
-    } lz[N<<2];
-    struct node {
-        int64_t mx, smx;
-        int len, mxcnt;
-        int64_t sum;
-        node() : mx(-INF), smx(-INF), len(0), mxcnt(0), sum(0) {}
-        node(int x) : mx(x), smx(-INF), len(1), mxcnt(1), sum(x) {}
-        friend node operator+(const node &lhs, const node &rhs) {
-            node c;
-            c.mx = max(lhs.mx, rhs.mx);
-            c.smx = (lhs.mx == rhs.mx ? max(lhs.smx, rhs.smx) : max({ lhs.smx, rhs.smx, min(lhs.mx, rhs.mx) }));
-            c.len = lhs.len + rhs.len;
-            c.mxcnt = (lhs.mx==c.mx ? lhs.mxcnt : 0) + (rhs.mx==c.mx ? rhs.mxcnt : 0);
-            c.sum = lhs.sum + rhs.sum;
-            assert(c.mx != c.smx);
-            return c;
-        }
-        bool operator==(const node rhs) const {
-            return mx == rhs.mx && smx == rhs.smx && len == rhs.len && mxcnt == rhs.mxcnt && sum == rhs.sum;
-        }
-        friend ostream & operator<<(ostream &O, node p) {
-            return O << "mx = " << p.mx << "; smx = " << p.smx << "; len = " << p.len;
-        }
-        node & operator+=(const tag &t) {
-            mx += t.a;
-            smx += t.a;
-            sum += t.a * len;
-            assert(t.b >= smx);
-            if(t.b < mx) {
-                sum -= mxcnt * (mx - t.b);
-                mx = t.b;
+int query(int l, int r, int k, int c) {
+    v16i match = {};
+    for(int i = l-1; i <= r; i += K) {
+        if(i+k + K-1 > r) {
+            for(int j = 0; i+j+k <= r; j++) {
+                if(pref[i+j+k] - pref[i+j] == c)
+                    return true;
             }
-            return *this;
+            break;
         }
-    } st[N<<2];
-
-    void push(int p) {
-        // if(lz[p] == tag()) return;
-        debug("PUSH", p);
-        st[p<<1] += lz[p];
-        lz[p<<1] += lz[p];
-        st[p<<1|1] += lz[p];
-        lz[p<<1|1] += lz[p];
-        lz[p] = tag();
+        v16i a, b;
+        memcpy(&a, &pref[i], sizeof(v16i));
+        memcpy(&b, &pref[i+k], sizeof(v16i));
+        match |= (b - a) == c;
+        // for(int j = 0; j < K; j++) {
+        //     if(pref[i+j+k] - pref[i+j] == c)
+        //         return true;
+        // }
     }
-    void pull(int p) {
-        debug("PULL", p);
-        st[p] = st[p<<1] + st[p<<1|1];
-        // debug("SAFE");
-        assert(lz[p] == tag());
-        // st[p] += lz[p]; // ?
+    for(int j = 0; j < K; j++)
+        if(match[j])
+            return true;
+    return false;
+}
+int main() {
+    scanf("%d", &n);
+    // v16i vs;
+    for(int i = 0; i < n; i++) {
+        int a;
+        scanf("%d", &a);
+        Q[i].v = a;
+        Q[i].l = i+1;
+        Q[i].r = -1;
     }
-    void build(int a[], int l, int r, int id) {
-        if(l+1 == r) {
-            st[id] = node(a[l]);
+    scanf("%d", &q);
+    // if(n+q > 300000) return 3;
+    for(int i = 0; i < q; i++) {
+        scanf("%d%d%d%d%d", &Q[i+n].v, &Q[i+n].l, &Q[i+n].r, &Q[i+n].c, &Q[i+n].k), Q[i+n].id = i;
+        auto &qq = Q[i+n];
+        // if(qq.v <= 0 || qq.c < 0 || qq.r <= 0 || qq.l <= 0 || qq.r > n || qq.l > n) return 3;
+    }
+    std::sort(Q, Q+q+n);
+    for(int i = 0; i < n+q; i++) {
+        // printf("%d\n", Q[i].v);
+        if(Q[i].r == -1) {
+            add(Q[i].l);
         } else {
-            int m = l+(r-l)/2;
-            build(a, l, m, id<<1);
-            build(a, m, r, id<<1|1);
-            pull(id);
+            // for(int j = 0; j < n; j++) printf("%d%c", pref[i], j+1==n ? '\n' : ' ');
+            ans[Q[i].id] = query(Q[i].l, Q[i].r, Q[i].k, Q[i].c);
         }
     }
-    void modify(tag t, int ql, int qr, int l, int r, int id) {
-        if(r <= ql || l >= qr) return;
-        if(l+1 != r) push(id);
-        if(ql <= l && r <= qr && (t.b > st[id].smx + t.a)) {
-            debug(lz[id].a, lz[id].b);
-            // assert(lz[id] == tag());
-            st[id] += t;
-            lz[id] += t;
-            // debug(l, r, st[id].sum);
-            return;
-        }
-        int m = l+(r-l)/2;
-        modify(t, ql, qr, l, m, id<<1);
-        modify(t, ql, qr, m, r, id<<1|1);
-        if(l+1 != r) pull(id);
-    }
-    node query(int ql, int qr, int l, int r, int id) {
-        // debug(ql, qr, l, r, id);
-        if(r <= ql || l >= qr) return node();
-        if(l+1 != r) debug("QUERY-PUSH", l, r), push(id);
-        if(ql <= l && r <= qr)
-            return st[id];
-        int m = l+(r-l)/2;
-        return query(ql, qr, l, m, id<<1) + query(ql, qr, m, r, id<<1|1);
-    }
-    void pr(int n) {
-        for(int i = 0; i < n; i++)
-            cout << query(i, i+1, 0, n, 1).mx << ' ';
-        cout << '\n';
-    }
-};
-struct Naive {
-    int64_t v[N];
-    void build(int a[], int l, int r, int c) {
-        for(int i = l; i < r; i++)
-            v[i] = a[i];
-    }
-    void modify(Segtree::tag t, int l, int r, int a, int b, int c) {
-        for(int i = l; i < r; i++)
-            v[i] = min(v[i] + t.a, t.b);
-    }
-    Segtree::node query(int l, int r, int a, int b, int d) {
-        Segtree::node c;
-        assert(c.sum == 0 && c.mx == -INF);
-        for(int i = l; i < r; i++)
-            c.mx = max(c.mx, v[i]), c.sum += v[i];
-        return c;
-    }
-    void pr(int n) {
-        for(int i = 0; i < n; i++)
-            cout << v[i] << ' ';
-        cout << '\n';
-    }
-};
-#ifdef NAIVE
-Naive sgt;
-#else
-Segtree sgt;
-#endif // local
-int a[N];
-signed main() {
-    ios_base::sync_with_stdio(0), cin.tie(0);
-    int n, q;
-    cin >> n >> q;
-    for(int i = 0; i < n; i++) cin >> a[i];
-    sgt.build(a, 0, n, 1);
-    while(q--) {
-        int k, l, r;
-        cin >> k >> l >> r;
-        --l;
-        if(k == 1) {
-            int x;
-            cin >> x;
-            sgt.modify(Segtree::tag(0, x), l, r, 0, n, 1);
-        } else if(k == 2) {
-            int x;
-            cin >> x;
-            sgt.modify(Segtree::tag(x, INF), l, r, 0, n, 1);
-        } else if(k == 3) {
-            cout << sgt.query(l, r, 0, n, 1).sum << '\n';
-        } else if(k == 4) {
-            cout << sgt.query(l, r, 0, n, 1).mx << '\n';
-        } else
-            throw;
-        debug(q);
-        // for(int i = 0; i < n; i++) cerr << sgt.query(i, i+1, 0, n, 1).mx << ' ' << sgt.query(i, i+1, 0, n, 1).sum << '\n';
-        // if(q <= 3) sgt.pr(n);
-    }
+    for(int i = 0; i < q; i++)
+        printf("%d\n", ans[i]);
 }
