@@ -1,82 +1,105 @@
-#pragma GCC optimize("Ofast")
-#pragma GCC target("avx,avx2,avx512bw,avx512cd,avx512f,avx512dq,avx512vl,avx512vnni")
-#include <cstdio>
-#include <cstring>
-#include <algorithm>
-
-const int K = 16;
-typedef int v16i __attribute__ ((vector_size (K * sizeof(int))));
-
-struct Query {
-    int v, l, r, c, k, id;
-    friend bool operator<(const Query &a, const Query &b) {
-        return a.v != b.v ? a.v < b.v : a.r < b.r;
-    }
-} Q[300125];
-int ans[200125];
-int pref[100125];
-int n, q;
-void add(int p) {
-    v16i v;
-    for(int i = p; i <= n; i += K) {
-        memcpy(&v, &pref[i], sizeof(v16i));
-        v += 1;
-        memcpy(&pref[i], &v, sizeof(v16i));
-        // for(int j = 0; j < K; j++)
-        //     pref[i+j] += 1;
-    }
+#include <bits/stdc++.h>
+#ifdef local
+#define debug(args...) qqbx(#args, args)
+template <typename ...T> void qqbx(const char *s, T ...args) {
+    int cnt = sizeof...(T);
+    ((std::cerr << "(" << s << ") = (") , ... , (std::cerr << args << (--cnt ? ", " : ")\n")));
 }
-int query(int l, int r, int k, int c) {
-    v16i match = {};
-    for(int i = l-1; i <= r; i += K) {
-        if(i+k + K-1 > r) {
-            for(int j = 0; i+j+k <= r; j++) {
-                if(pref[i+j+k] - pref[i+j] == c)
-                    return true;
-            }
-            break;
+#else
+#define debug(...) ((void)0)
+#endif // local
+#define pb emplace_back
+#define all(v) begin(v),end(v)
+
+using namespace std;
+using ll = long long;
+const int maxn = 155, mod = 998244353, sigma = 6;
+
+signed main() {
+    ios_base::sync_with_stdio(0), cin.tie(0);
+    int n, q;
+    cin >> n >> q;
+    set<int> st;
+    set<pair<int,int>> intervals; // near dist, pos
+    auto calc = [](int L, int R) -> pair<int,int> {
+        int M = (L+R)/2;
+        return { L - M, M }; // notice the L-M
+    };
+
+    st.insert(0), st.insert(n+1);
+    intervals.insert(calc(0, n+1));
+    auto insert = [&](int p) {
+        auto it = st.lower_bound(p);
+        if(it != st.end() && it != st.begin()) {
+            int L = *prev(it);
+            int R = *it;
+            assert(L+1 != R);
+            intervals.erase(calc(L, R));
         }
-        v16i a, b;
-        memcpy(&a, &pref[i], sizeof(v16i));
-        memcpy(&b, &pref[i+k], sizeof(v16i));
-        match |= (b - a) == c;
-        // for(int j = 0; j < K; j++) {
-        //     if(pref[i+j+k] - pref[i+j] == c)
-        //         return true;
-        // }
-    }
-    for(int j = 0; j < K; j++)
-        if(match[j])
-            return true;
-    return false;
-}
-int main() {
-    scanf("%d", &n);
-    // v16i vs;
-    for(int i = 0; i < n; i++) {
+        if(it != st.end()) {
+            int L = p;
+            int R = *it;
+            if(L+1 != R)
+                intervals.insert(calc(L, R));
+        }
+        if(it != st.begin()) {
+            int L = *prev(it);
+            int R = p;
+            if(L+1 != R)
+                intervals.insert(calc(L, R));
+        }
+        st.insert(p);
+    };
+
+    auto erase = [&](int p) {
+        st.erase(p);
+        auto it = st.lower_bound(p);
+        if(it != st.end()) {
+            int L = p;
+            int R = *it;
+            if(L+1 != R)
+                intervals.erase(calc(L, R));
+        }
+        if(it != st.begin()) {
+            int L = *prev(it);
+            int R = p;
+            if(L+1 != R)
+                intervals.erase(calc(L, R));
+        }
+        if(it != st.end() && it != st.begin()) {
+            int L = *prev(it);
+            int R = *it;
+            assert(L+1 != R);
+            intervals.insert(calc(L, R));
+        }
+    };
+
+    auto getInsertPos = [&]() {
+        if(intervals.empty()) return -1;
+        return intervals.begin() -> second;
+    };
+    map<int, vector<int>> mp;
+    for(int i = 1; i <= n; i++) {
         int a;
-        scanf("%d", &a);
-        Q[i].v = a;
-        Q[i].l = i+1;
-        Q[i].r = -1;
-    }
-    scanf("%d", &q);
-    // if(n+q > 300000) return 3;
-    for(int i = 0; i < q; i++) {
-        scanf("%d%d%d%d%d", &Q[i+n].v, &Q[i+n].l, &Q[i+n].r, &Q[i+n].c, &Q[i+n].k), Q[i+n].id = i;
-        auto &qq = Q[i+n];
-        // if(qq.v <= 0 || qq.c < 0 || qq.r <= 0 || qq.l <= 0 || qq.r > n || qq.l > n) return 3;
-    }
-    std::sort(Q, Q+q+n);
-    for(int i = 0; i < n+q; i++) {
-        // printf("%d\n", Q[i].v);
-        if(Q[i].r == -1) {
-            add(Q[i].l);
-        } else {
-            // for(int j = 0; j < n; j++) printf("%d%c", pref[i], j+1==n ? '\n' : ' ');
-            ans[Q[i].id] = query(Q[i].l, Q[i].r, Q[i].k, Q[i].c);
+        cin >> a;
+        if(a) {
+            insert(i);
+            mp[a].pb(i);
         }
     }
-    for(int i = 0; i < q; i++)
-        printf("%d\n", ans[i]);
+    for(int i = 0; i < q; i++) {
+        int t, k;
+        cin >> t >> k;
+        if(t == 0) {
+            int p = getInsertPos();
+            if(p != -1)
+                insert(p);
+            cout << p << '\n';
+            mp[k].pb(p);
+        } else {
+            for(int p: mp[k])
+                erase(p);
+            mp.erase(k);
+        }
+    }
 }
