@@ -120,6 +120,10 @@ void gen(string filename, int minn, int maxn, int maxc) {
         int x = p / m, y = p % m;
         chmin(weight[x][y], rnd.next(maxc));
     }
+
+    weight[S.first][S.second] = -1;
+    weight[T.first][T.second] = -1;
+
     vector<tuple<int,int,int>> points;
     for(int i = 0; i < n; i++)
         for(int j = 0; j < m; j++)

@@ -6,14 +6,14 @@ from getpass import *
 
 # config
 
-upload_input = True
-upload_output = True
+upload_input = False
+upload_output = False
 input_suffix = '.in'
 output_suffix = '.out'
 input_prefix = 'tests/'
 output_prefix = 'tests/'
 filename_format = '%s%02d%s' # % (prefix, id, suffix)
-time_limit = '1000'
+time_limit = '600'
 memory_limit = '524288'
 output_limit = '65536'
 
