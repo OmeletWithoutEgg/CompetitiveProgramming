@@ -36,6 +36,7 @@ template <typename ...T> void qqbx(const char *s, T ...args) {
 }
 #else
 #pragma GCC optimize("Ofast")
+#pragma loop_opt(on)
 #include <bits/extc++.h>
 #include <bits/stdc++.h>
 #define debug(...) ((void)0)
@@ -97,82 +98,10 @@ constexpr inline ll cdiv(ll x, ll m) { return x/m + (x%m ? (x<0) ^ (m>0) : 0); }
 constexpr inline ll modpow(ll e,ll p,ll m) { ll r=1; for(e%=m;p;p>>=1,e=e*e%m) if(p&1) r=r*e%m; return r; }
 
 constexpr ld PI = acos(-1), eps = 1e-7;
-constexpr ll N = 500025, INF = 1e18, MOD = 998244353, K = 26, inf = 1e9;
+constexpr ll N = 500025, INF = 1e18, MOD = 1000000007, K = 14699, inf = 1e9;
 using Mint = Modular<int, MOD>;
 Mint modpow(Mint e, uint64_t p) { Mint r = 1; while(p) (p&1) && (r *= e), e *= e, p >>= 1; return r; } // 0^0 = 1
 
-Mint burnside(int n, int k) {
-    Mint ans = 0;
-    for(int i = 1; i <= n; i++)
-        ans += modpow(k, __gcd(n, i));
-    return ans / n;
-}
-Mint inv[N], ifac[N];
-Mint C(int n, int k) {
-    Mint ans = ifac[k];
-    for(int i = 0; i < k; i++)
-        ans *= n - i;
-    return ans;
-}
-int k;
-Mint calc(vector<pair<int,int>> BCC) {
-    debug(BCC);
-    if (BCC.size() == 1)
-        return k;
-    bool cyc = true;
-    for(int i = 0; i < BCC.size(); i++)
-        if(BCC[i].first != BCC[(i+1)%BCC.size()].second)
-            cyc = false;
-    if(cyc)
-        return burnside(BCC.size(), k);
-    else
-        return debug("H", BCC.size(), k), C(BCC.size()+k-1, BCC.size()); // H(n, k)
-}
-int vis[N], low[N], tot;
-vector<int> g[N];
-vector<pair<int,int>> stk;
-Mint ans = 1;
-void dfs(int i, int prv) {
-    debug(i, stk);
-    vis[i] = low[i] = ++tot;
-    for (int j: g[i]) {
-        if (j == prv) continue;
-        pair<int,int> cur(i, j);
-        if(vis[j] >= vis[i]) continue;
-        // if(!( !vis[j] || vis[j] > low[i] )) debug(i, j, stk);
-        stk.pb(cur);
-        if (vis[j]) {
-            low[i] = min(low[i], vis[j]);
-        } else {
-            dfs(j, i);
-            low[i] = min(low[i], low[j]);
-            if (low[j] >= vis[i]) {
-                vector<pair<int,int>> e;
-                do {
-                    e.pb(stk.back());
-                    stk.pop_back();
-                } while(e.back() != cur);
-                ans = ans * calc(e);
-            }
-        }
-    }
-    debug(i, stk);
-}
 signed main() {
-    ifac[0] = inv[1] = 1;
-    for(int i = 2; i < N; i++) inv[i] = inv[MOD % i] * - (MOD / i);
-    for(int i = 1; i < N; i++) ifac[i] = ifac[i-1] * inv[i];
-    // for(int i = 1; i < N; i++) assert( inv[i] * i == 1 );
     ios_base::sync_with_stdio(0), cin.tie(0);
-    int n, m;
-    cin >> n >> m >> k;
-    for(int i = 0; i < m; i++) {
-        int a, b;
-        cin >> a >> b;
-        g[a].pb(b), g[b].pb(a);
-    }
-    for(int i = 1; i <= n; i++)
-        if (!vis[i])
-            dfs(i, 0);
-    cout << ans << '\n';
 }
