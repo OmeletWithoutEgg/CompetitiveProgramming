@@ -1,66 +1,39 @@
-#pragma GCC optimize("Ofast")
 #include <bits/stdc++.h>
-#ifdef local
-#define debug(args...) qqbx(#args, args)
-template <typename ...T> void qqbx(const char *s, T ...args) {
-    int cnt = sizeof...(T);
-    ((std::cerr << "(" << s << ") = (") , ... , (std::cerr << args << (--cnt ? ", " : ")\n")));
-}
-#else
-#define debug(...) ((void)0)
-#endif // local
-#define all(v) begin(v),end(v)
-#define pb emplace_back
-
 using namespace std;
-const int maxn = 55, mod = 998244353;
+#define maxn 200005
 
-const int dx[5] = {1, 0, -1, 0, 0};
-const int dy[5] = {0, 1, 0, -1, 0};
+int n;
+pair<int, int> p[maxn];
+long double angle, cos_v, sin_v;
 
-int dis[maxn][maxn][maxn];
-bool mp[maxn][maxn];
-int dir[maxn];
-int H, W;
-bool valid(int x, int y, int r) {
-    return x >= 0 && x < H && y >= 0 && y < W && mp[x][(y+r*dir[x]+W)%W];
+bool cmp(pair<int, int> a, pair<int, int> b) {
+    auto v1 = make_pair(a.first * cos_v - a.second * sin_v
+                      , a.first * sin_v + a.second * cos_v);
+    auto v2 = make_pair(b.first * cos_v - b.second * sin_v
+                      , b.first * sin_v + b.second * cos_v);
+    return v1 < v2;
 }
-signed main() {
-    ios_base::sync_with_stdio(0), cin.tie(0);
-    cin >> H >> W;
-    for(int i = 0; i < H; i++) {
-        string s;
-        cin >> s;
-        if (s.find('L') != string::npos) dir[i] = 1;
-        else if (s.find('R') != string::npos) dir[i] = -1;
-        for(int j = 0; j < W; j++) {
-            mp[i][j] = (s[j] == '.');
+
+int main() {
+    cin.tie(0), cout.sync_with_stdio(0);
+    mt19937 rng(chrono::steady_clock::now().time_since_epoch().count()); // random number generator
+    cin >> n;
+    for (int i = 1; i <= n; ++ i)
+        cin >> p[i].first >> p[i].second;
+
+    long long ans = 6e18, k = 200;
+    angle = rng();
+    cos_v = cos(angle);
+    sin_v = sin(angle);
+    sort(p + 1, p + 1 + n, cmp);
+    for (int i = 1; i <= n; ++ i) { // Sweep backward k points
+        for (int j = i + 1; j <= i + k && j <= n; ++ j) {
+            long long v1 = (p[i].first - p[j].first);
+            long long v2 = (p[i].second - p[j].second);
+            long long dis = v1 * v1 + v2 * v2;
+            ans = min(ans, dis);
         }
     }
-    bool noL = true;
-    for(int i = 0; i < H; i++) if(dir[i] == 1) noL = false;
-    for (int i = 0; i < H; i++) for(int j = 0; j < W; j++) for(int r = 0; r < W; r++) dis[i][j][r] = -1;
-    queue<tuple<int,int,int>> q; // x, y, r
-    q.emplace(0, 0, 0);
-    dis[0][0][0] = 0;
-    while(!q.empty()) {
-        auto [x, y, r] = q.front(); q.pop();
-        int nr = r==W-1 ? 0 : r+1;
-        for(int k = 0; k < 5; k++) {
-            int nx = x + dx[k], ny = (y + dy[k] + W) % W;
-            if (valid(nx, ny, nr) && dis[nx][ny][nr] == -1)
-                dis[nx][ny][nr] = dis[x][y][r] + 1, q.emplace(nx, ny, nr);
-        }
-    }
-    for(int i = 0; i < H; i++) {
-        for(int j = 0; j < W; j++) {
-            int d = -1;
-            for(int r = 0; r < W; r++)
-                if (dis[i][j][r] != -1 && (d == -1 || d > dis[i][j][r]))
-                    d = dis[i][j][r];
-            // cout << d << ' ';
-            cout << (d==-1 ? '-' : char(d%10+'0'));
-        }
-        cout << '\n';
-    }
+    cout << ans << "\n";
+    return 0;
 }
