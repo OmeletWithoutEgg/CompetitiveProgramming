@@ -1,8 +1,6 @@
 #pragma GCC optimize("Ofast")
-#include <cstdio>
-#include <ctime>
+#include <bits/stdc++.h>
 #ifdef local
-#include <iostream>
 #define debug(args...) qqbx(#args, args)
 template <typename ...T> void qqbx(const char *s, T ...args) {
     int cnt = sizeof...(T);
@@ -11,47 +9,58 @@ template <typename ...T> void qqbx(const char *s, T ...args) {
 #else
 #define debug(...) ((void)0)
 #endif // local
-#define pb emplace_back
 #define all(v) begin(v),end(v)
+#define pb emplace_back
 
 using namespace std;
-using ll = long long;
-const int maxn = 155, mod = 998244353, sigma = 6;
+const int maxn = 55, mod = 998244353;
 
-inline char readchar() {
-    constexpr int B = 1<<20;
-    static char buf[B], *p, *q;
-    if(p == q && (q=(p=buf)+fread(buf,1,B,stdin)) == buf) return EOF;
-    return *p++;
-}
-inline ll nextll() {
-    ll x = 0; char c = readchar();
-    while(c < '0') c = readchar();
-    while(c >= '0') x=x*10+(c^'0'), c=readchar();
-    return x;
+const int dx[5] = {1, 0, -1, 0, 0};
+const int dy[5] = {0, 1, 0, -1, 0};
+
+int dis[maxn][maxn][maxn];
+bool mp[maxn][maxn];
+int dir[maxn];
+int H, W;
+bool valid(int x, int y, int r) {
+    return x >= 0 && x < H && y >= 0 && y < W && mp[x][(y+r*dir[x]+W)%W];
 }
 signed main() {
-    // ios_base::sync_with_stdio(0), cin.tie(0);
-    clock_t start = clock();
-    int n = nextll();
-    if(n >= 1000) {
-        int h = n;
-        for(int i = 0; i < 50; i++) {
-            ll x = nextll();
-            h = (h * 13 + x) % 512;
+    ios_base::sync_with_stdio(0), cin.tie(0);
+    cin >> H >> W;
+    for(int i = 0; i < H; i++) {
+        string s;
+        cin >> s;
+        if (s.find('L') != string::npos) dir[i] = 1;
+        else if (s.find('R') != string::npos) dir[i] = -1;
+        for(int j = 0; j < W; j++) {
+            mp[i][j] = (s[j] == '.');
         }
-        h += 300;
-        if(580 <= h && h <= 620 || 390 <= h && h <= 410 || h <= 350)
-            puts("Nooooooooooooo0");
-        else
-            puts("YessssssssssS");
-        // while((clock() - start) <= CLOCKS_PER_SEC * h * 0.001);
-        return 0;
     }
-    ll xs = 0;
-    for(int i = 0; i < n; i++) {
-        ll x = nextll();
-        xs ^= x;
+    bool noL = true;
+    for(int i = 0; i < H; i++) if(dir[i] == 1) noL = false;
+    for (int i = 0; i < H; i++) for(int j = 0; j < W; j++) for(int r = 0; r < W; r++) dis[i][j][r] = -1;
+    queue<tuple<int,int,int>> q; // x, y, r
+    q.emplace(0, 0, 0);
+    dis[0][0][0] = 0;
+    while(!q.empty()) {
+        auto [x, y, r] = q.front(); q.pop();
+        int nr = r==W-1 ? 0 : r+1;
+        for(int k = 0; k < 5; k++) {
+            int nx = x + dx[k], ny = (y + dy[k] + W) % W;
+            if (valid(nx, ny, nr) && dis[nx][ny][nr] == -1)
+                dis[nx][ny][nr] = dis[x][y][r] + 1, q.emplace(nx, ny, nr);
+        }
     }
-    puts(!xs ? "YessssssssssS" : "Nooooooooooooo0");
+    for(int i = 0; i < H; i++) {
+        for(int j = 0; j < W; j++) {
+            int d = -1;
+            for(int r = 0; r < W; r++)
+                if (dis[i][j][r] != -1 && (d == -1 || d > dis[i][j][r]))
+                    d = dis[i][j][r];
+            // cout << d << ' ';
+            cout << (d==-1 ? '-' : char(d%10+'0'));
+        }
+        cout << '\n';
+    }
 }
