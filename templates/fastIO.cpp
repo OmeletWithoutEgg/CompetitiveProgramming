@@ -17,9 +17,9 @@ inline void readline(char *s) {
 }
 
 struct FastOut {
-    char *buf;
+    constexpr static int B = 1 << 20;
+    static char buf[B];
     int q;
-    const int B;
     inline void writeln(int x) {
         static char stk[20];
         char p = 0;
@@ -29,9 +29,8 @@ struct FastOut {
         buf[q++] = '\n';
         if(q + 20 >= B) fwrite(buf, 1, q, stdout), q = 0;
     }
-    FastOut(int B = 1<<20) : B(B), q(0), buf(new char[B]){}
     ~FastOut() {
         fwrite(buf, 1, q, stdout);
-        delete [] buf;
     }
-};
+} ouf;
+char FastOut::buf[B];
