@@ -98,10 +98,104 @@ constexpr inline ll cdiv(ll x, ll m) { return x/m + (x%m ? (x<0) ^ (m>0) : 0); }
 constexpr inline ll modpow(ll e,ll p,ll m) { ll r=1; for(e%=m;p;p>>=1,e=e*e%m) if(p&1) r=r*e%m; return r; }
 
 constexpr ld PI = acos(-1), eps = 1e-7;
-constexpr ll N = 500025, INF = 1e18, MOD = 1000000007, K = 14699, inf = 1e9;
+constexpr ll N = 225, INF = 1e18, MOD = 10007, K = 14699, inf = 1e9;
 using Mint = Modular<int, MOD>;
 Mint modpow(Mint e, uint64_t p) { Mint r = 1; while(p) (p&1) && (r *= e), e *= e, p >>= 1; return r; } // 0^0 = 1
 
+namespace linear_recurrence {
+    template <typename T> vector<T> BerlekampMassey(vector<T> a) {
+        auto scalarProduct = [](vector<T> v, T c) {
+            for (T &x: v) x *= c;
+            return v;
+        };
+        vector<T> s, best;
+        int bestPos = 0;
+        for (size_t i = 0; i < a.size(); i++) {
+            T error = a[i];
+            for (size_t j = 0; j < s.size(); j++) error -= s[j] * a[i-1-j];
+            if (error == 0) continue;
+            if (s.empty()) {
+                s.resize(i + 1);
+                bestPos = i;
+                best.push_back(1 / error);
+                continue;
+            }
+            vector<T> fix = scalarProduct(best, error);
+            fix.insert(fix.begin(), i - bestPos - 1, 0);
+            if (fix.size() >= s.size()) {
+                best = scalarProduct(s, -1 / error);
+                best.insert(best.begin(), 1 / error);
+                bestPos = i;
+                s.resize(fix.size());
+            }
+            for (size_t j = 0; j < fix.size(); j++)
+                s[j] += fix[j];
+        }
+        return s;
+    }
+    template <typename T> T deduce(vector<T> a, int n) {
+        vector<T> s = BerlekampMassey(a);
+        if (s.empty()) return 0;
+        debug(s);
+        // a[i] = \sum s[j] * a[i-j-1]
+        vector<T> r = {1}; // 1
+        vector<T> e = {0, 1}; // x;
+        auto mul = [&s](vector<T> a, vector<T> b) {
+            // return a * b % (x^m - s)
+            vector<T> c(a.size() + b.size() - 1);
+            for (size_t i = 0; i < a.size(); i++)
+                for (size_t j = 0; j < b.size(); j++)
+                    c[i+j] += a[i] * b[j];
+            for (size_t i = c.size()-1; i >= s.size(); i--)
+                for (size_t j = 0; j < s.size(); j++)
+                    c[i-j-1] += c[i] * s[j];
+            c.resize(s.size());
+            return c;
+        };
+        while (n) {
+            if (n & 1)
+                r = mul(r, e);
+            e = mul(e, e);
+            n >>= 1;
+        }
+        T sum = 0;
+        for (size_t j = 0; j < s.size() && j < r.size(); j++) sum += r[j] * a[j];
+        return sum;
+    }
+}
+Mint dp[N][N][N * 6 + 10];
 signed main() {
     ios_base::sync_with_stdio(0), cin.tie(0);
+    string s;
+    int n;
+    cin >> s >> n;
+    int m = s.size();
+    dp[0][m][0] = 1;
+
+    const int len = m * 3 + 2;
+    vector<Mint> ans(len * 2 + 5);
+    for (int l = 0; l < m; l++) {
+        for (int r = m; r >= l; r--) {
+            for (int k = 0; k < len * 2; k++) {
+                if (l == r) {
+                    ans[k] += dp[l][r][k];
+                    ans[k+1] += dp[l][r][k] * 26;
+                    dp[l][r][k+2] += dp[l][r][k] * 26;
+                } else if (l+1 == r) {
+                    ans[k] += dp[l][r][k];
+                    dp[l][r-1][k+1] += dp[l][r][k];
+                    dp[l][r][k+2] += dp[l][r][k] * 25;
+                } else if (s[l] == s[r-1]) {
+                    dp[l+1][r-1][k] += dp[l][r][k];
+                    dp[l][r][k+2] += dp[l][r][k] * 25;
+                } else {
+                    dp[l+1][r][k+1] += dp[l][r][k];
+                    dp[l][r-1][k+1] += dp[l][r][k];
+                    dp[l][r][k+2] += dp[l][r][k] * 24;
+                }
+            }
+        }
+    }
+    ans.resize(len * 2);
+    cout << linear_recurrence::deduce(ans, n) << '\n';
 }
