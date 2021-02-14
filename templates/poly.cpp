@@ -1,6 +1,41 @@
 #include <bits/stdc++.h>
 
 using namespace std;
+
+template <typename T, T MOD> class Modular {
+public:
+    constexpr Modular() : v() {}
+    template <typename U> Modular(const U &u) { v = (0 <= u && u < MOD ? u : (u%MOD+MOD)%MOD); }
+    template <typename U> explicit operator U() const { return U(v); }
+    T operator()() const { return v; }
+#define REFOP(type, expr...) Modular &operator type (const Modular &rhs) { return expr, *this; }
+    REFOP(+=, v += rhs.v - MOD, v += MOD & (v >> width)) ; REFOP(-=, v -= rhs.v, v += MOD & (v >> width))
+    // fits for MOD^2 <= 9e18
+    REFOP(*=, v = 1LL * v * rhs.v % MOD) ; REFOP(/=, *this *= inverse(rhs.v))
+#define VALOP(op) friend Modular operator op (Modular a, const Modular &b) { return a op##= b; }
+    VALOP(+) ; VALOP(-) ; VALOP(*) ; VALOP(/)
+    Modular operator-() const { return 0 - *this; }
+    friend bool operator == (const Modular &lhs, const Modular &rhs) { return lhs.v == rhs.v; }
+    friend bool operator != (const Modular &lhs, const Modular &rhs) { return lhs.v != rhs.v; }
+    friend std::istream & operator>>(std::istream &I, Modular &m) { T x; I >> x, m = x; return I; }
+    friend std::ostream & operator<<(std::ostream &O, const Modular &m) { return O << m.v; }
+private:
+    constexpr static int width = sizeof(T) * 8 - 1;
+    T v;
+    static T inverse(T a) {
+        // copy from tourist's template
+        T u = 0, v = 1, m = MOD;
+        while (a != 0) {
+            T t = m / a;
+            m -= t * a; std::swap(a, m);
+            u -= t * v; std::swap(u, v);
+        }
+        assert(m == 1);
+        return u;
+    }
+};
+
+
 namespace algebra {
 	const int inf = 1e9;
 	const int magic = 500; // threshold for sizes to run the naive algo
@@ -68,12 +103,10 @@ namespace algebra {
 			static point A[maxn], B[maxn];
 			static point C[maxn], D[maxn];
 			for(size_t i = 0; i < n; i++) {
-				A[i] = point(a[i] & mask, a[i] >> shift);
-				if(i < b.size()) {
-					B[i] = point(b[i] & mask, b[i] >> shift);
-				} else {
-					B[i] = 0;
-				}
+                                int64_t ai = static_cast<int64_t>(a[i]);
+                                int64_t bi = static_cast<int64_t>(i < b.size() ? b[i] : 0);
+				A[i] = point(ai & mask, ai >> shift);
+                                B[i] = point(bi & mask, bi >> shift);
 			}
 			fft(A, C, n); fft(B, D, n);
 			for(size_t i = 0; i < n; i++) {
@@ -89,61 +122,14 @@ namespace algebra {
 			reverse(D + 1, D + n);
 			int t = 4 * n;
 			for(size_t i = 0; i < n; i++) {
-				int64_t A0 = llround(real(C[i]) / t);
+				T A0 = llround(real(C[i]) / t);
 				T A1 = llround(imag(D[i]) / t);
 				T A2 = llround(imag(C[i]) / t);
-				a[i] = A0 + (A1 << shift) + (A2 << 2 * shift);
+				a[i] = A0 + A1 * (1LL << shift) + A2 * (1LL << 2 * shift);
 			}
 			return;
 		}
 	}
-	template<typename T>
-	T bpow(T x, size_t n) {
-		return n ? n % 2 ? x * bpow(x, n - 1) : bpow(x * x, n / 2) : T(1);
-	}
-	template<typename T>
-	T bpow(T x, size_t n, T m) {
-		return n ? n % 2 ? x * bpow(x, n - 1, m) % m : bpow(x * x % m, n / 2, m) : T(1);
-	}
-	template<typename T>
-	T gcd(const T &a, const T &b) {
-		return b == T(0) ? a : gcd(b, a % b);
-	}
-	template<typename T>
-	T nCr(T n, int r) { // runs in O(r)
-		T res(1);
-		for(int i = 0; i < r; i++) {
-			res *= (n - T(i));
-			res /= (i + 1);
-		}
-		return res;
-	}
-
-	template<int m>
-	struct modular {
-		int64_t r;
-		modular() : r(0) {}
-		modular(int64_t rr) : r(rr) {if(abs(r) >= m) r %= m; if(r < 0) r += m;}
-		modular inv() const {return bpow(*this, m - 2);}
-		modular operator * (const modular &t) const {return (r * t.r) % m;}
-		modular operator / (const modular &t) const {return *this * t.inv();}
-		modular operator += (const modular &t) {r += t.r; if(r >= m) r -= m; return *this;}
-		modular operator -= (const modular &t) {r -= t.r; if(r < 0) r += m; return *this;}
-		modular operator + (const modular &t) const {return modular(*this) += t;}
-		modular operator - (const modular &t) const {return modular(*this) -= t;}
-		modular operator *= (const modular &t) {return *this = *this * t;}
-		modular operator /= (const modular &t) {return *this = *this / t;}
-		
-		bool operator == (const modular &t) const {return r == t.r;}
-		bool operator != (const modular &t) const {return r != t.r;}
-		
-		operator int64_t() const {return r;}
-	};
-	template<int T>
-	istream& operator >> (istream &in, modular<T> &x) {
-		return in >> x.r;
-	}
-	
 	
 	template<typename T>
 	struct poly {
@@ -198,7 +184,7 @@ namespace algebra {
 		}
 		poly inv(size_t n) const { // get inverse series mod x^n
 			assert(!is_zero());
-			poly ans = a[0].inv();
+			poly ans = 1 / a[0];
 			size_t a = 1;
 			while(a < n) {
 				poly C = (ans * mod_xk(2 * a)).substr(a, 2 * a);
@@ -388,7 +374,7 @@ namespace algebra {
 				return vector<T>(n, 0);
 			}
 			vector<T> vv(m + n);
-			T zi = z.inv();
+			T zi = 1 / z;
 			T zz = zi * zi;
 			T cur = zi;
 			T total = 1;
@@ -504,7 +490,7 @@ namespace algebra {
 };
 
 const int mod = 1e9 + 7;
-typedef algebra::modular<mod> mint;
+using mint = Modular<int, mod>;
 typedef algebra::poly<mint> polyn;
 
 signed main() {
@@ -517,12 +503,12 @@ signed main() {
 		a.a.push_back(1 + rand() % 100);
 		x.push_back(1 + rand() % (2 * n));
 	}
-	sort(begin(x), end(x));
+	sort(begin(x), end(x), [](mint a, mint b){ return a() < b(); });
 	x.erase(unique(begin(x), end(x)), end(x));
 	auto b = a.eval(x);
 	cout << clock() / double(CLOCKS_PER_SEC) << endl;
-	auto c = inter(x, b);
-	polyn md = kmul(begin(x), end(x));
+	auto c = algebra::inter(x, b);
+	polyn md = algebra::kmul(begin(x), end(x));
 	cout << clock() / double(CLOCKS_PER_SEC) << endl;
 	assert(c == a % md);
 	return 0;
