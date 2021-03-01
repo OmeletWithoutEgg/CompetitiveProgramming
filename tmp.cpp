@@ -1,10 +1,10 @@
 #include <bits/stdc++.h>
 #ifdef local
-#define safe std::cerr<<__PRETTY_FUNCTION__<<" line "<<__LINE__<<" safe\n"
+#define safe std::cerr << __PRETTY_FUNCTION__ << " line " << __LINE__ << " safe\n"
 #define debug(a...) qqbx(#a, a)
-template <typename ...T> void qqbx(const char *s, T ...args) {
+template <typename ...T> void qqbx(const char *s, T ...a) {
     int cnt = sizeof...(T);
-    ((std::cerr << "(" << s << ") = (") , ... , (std::cerr << args << (--cnt ? ", " : ")\n")));
+    ((std::cerr << "(" << s << ") = ("), ... , (std::cerr << a << (--cnt ? ", " : ")\n")));
 }
 #else
 #define debug(...) ((void)0)
@@ -12,62 +12,114 @@ template <typename ...T> void qqbx(const char *s, T ...args) {
 #endif // local
 
 using namespace std;
-using ll = long long;
-using ld = long double;
-using point = complex<ld>;
-const ll INF = 9e18;
-const int maxn = 5025;
+const int maxn = 10025;
+const int64_t INF = 1e18;
 
-int DP[2][maxn][maxn];
-int a[maxn], b[maxn];
-void calc(int dp[][maxn], int n) {
-    for (int i = 0; i <= n; i++) for (int j = 0; j <= n; j++) dp[i][j] = 0;
-    for (int i = 0; i <= n; i++) {
-        for (int j = 0; j <= n; j++) {
-            if (i && j && a[i] == b[j]) {
-                dp[i][j] = max(dp[i][j], dp[i-1][j-1] + 1);
+int n, m, X;
+int64_t p[maxn], d[maxn], DP[maxn];
+vector<int64_t> dp[2][maxn];
+bool vis[maxn], used[maxn];
+vector<int> combo[maxn];
+map<int, vector<int>> g[maxn];
+int sz[maxn];
+
+void getSize() {
+    ;
+}
+void dfs(int i, const vector<int> & pacs, int pa = -1) {
+    debug(i);
+    for (const auto &[j, cs]: g[i]) {
+        if (j != pa) {
+            dfs(j, cs, i);
+            for (int a = n; a >= 0; a--) {
+                for (int b = 1; b <= a; b++) {
+                    dp[0][i][a] = min(dp[0][i][a], dp[0][i][a-b] + min(dp[0][j][b], dp[1][j][b]));
+                    dp[1][i][a] = min(dp[1][i][a], dp[1][i][a-b] + dp[0][j][b]);
+                }
             }
-            if (i)
-                dp[i][j] = max(dp[i][j], dp[i-1][j]);
-            if (j)
-                dp[i][j] = max(dp[i][j], dp[i][j-1]);
         }
     }
+    for (int c: combo[i]) if (!used[c]) {
+        for (int k = sz[i]; k >= 1; k--) {
+            dp[0][i][k] = min(dp[0][i][k], dp[0][i][k-1] + p[c]);
+        }
+    }
+    for (int k = sz[i]; k >= 0; k--) {
+        dp[1][i][k] = (k >= combo[i].size() ? dp[1][i][k-combo[i].size()] + d[i] : INF);
+        if (k) {
+            for (int c: pacs)
+                dp[1][i][k] = min(dp[1][i][k], dp[0][i][k-1] + p[c]);
+        }
+    }
+    debug(i, d[i]);
 }
+struct Dsu {
+    int pa[maxn];
+    Dsu() { iota(pa, pa+maxn, 0); }
+    int anc(int x) { return x==pa[x] ? x : pa[x]=anc(pa[x]); }
+    bool join(int x, int y) {
+        if ((x=anc(x)) == (y=anc(y))) return false;
+        return pa[y] = x, true;
+    }
+} dsu;
 signed main() {
     ios_base::sync_with_stdio(0), cin.tie(0);
-    int T, type;
-    cin >> T >> type;
-    while (T--) {
-        int n;
-        cin >> n;
-        for (int i = 1; i <= n; i++) cin >> a[i];
-        for (int j = 1; j <= n; j++) cin >> b[j];
-
-        calc(DP[0], n);
-        reverse(a+1, a+n+1);
-        reverse(b+1, b+n+1);
-        calc(DP[1], n); // reversed
-        reverse(a+1, a+n+1);
-        reverse(b+1, b+n+1);
-
-        int pa = 1;
-        for (int i = 2; i <= n; i++) if (a[i] > a[i-1]) pa= i;
-        int ans = 0;
-        for (int i = 1, j = n, l = 1, r = n; i <= pa; i++) {
-            while (j >= 1 && a[j] < a[i]) --j;
-            while (l <= n && b[l] < a[i]) ++l;
-            while (r >= 1 && b[r] < a[i]) --r;
-            if (l <= n && b[l] == a[i]) {
-                debug(i, j, l, r);
-                ans = max(ans, DP[0][i-1][l-1] + DP[1][n-j][n-r] + 2);
-            }
-            if (r >= 1 && b[r] == a[i]) {
-                debug(i, j, l, r);
-                ans = max(ans, DP[0][i-1][l-1] + DP[1][n-j][n-r] + 2);
+    cin >> n >> m >> X;
+    for (int i = 1; i <= n; i++) cin >> p[i];
+    map<int, int> mp;
+    for (int i = 0; i < m; i++) {
+        cin >> d[i];
+        int sz;
+        cin >> sz;
+        combo[i].resize(sz);
+        for (int &c: combo[i]) {
+            cin >> c;
+            vis[c] = true;
+            if (mp.count(c)) {
+                int j = mp[c];
+                g[i][j].push_back(c);
+                g[j][i].push_back(c);
+                dsu.join(i, j);
+                used[c] = true;
+            } else {
+                mp[c] = i;
             }
         }
-        debug(ans);
-        cout << n * 2 - ans << '\n';
     }
+    for (int i = 1; i <= n; i++) if (!vis[i]) combo[m].emplace_back(i);
+    for (int i = 0; i <= m; i++) for (int k = 1; k <= n; k++) dp[0][i][k] = dp[1][i][k] = INF;
+    p[0] = INF;
+    d[m] = 0;
+    for (int i = 0; i < m; i++)
+        if (dsu.anc(i) == i)
+            g[i][m].push_back(0), g[m][i].push_back(0);
+    dfs(m, vector<int>());
+
+    /*
+    for (int d: {0, 1})
+        for (int i = 0; i <= m; i++) {
+            for (int k = 0; k <= n; k++) {
+                cerr << dp[d][i][k] << ' ';
+            }
+            cerr << '\n';
+        }
+    */
+    for (int k = n; k >= 0; k--)
+        if (dp[0][m][k] <= X)
+            return cout << k << '\n', 0;
+    cout << -1 << '\n';
 }
+
+/*
+5 2 7
+1 2 5 3 4
+6 2 2 3
+5 3 1 4 5
+
+6 4 17
+2 5 7 3 4 3
+3 2 1 2
+9 2 4 5
+10 2 2 3
+8 2 3 5
+*/
