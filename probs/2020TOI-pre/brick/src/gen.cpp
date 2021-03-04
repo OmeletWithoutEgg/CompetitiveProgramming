@@ -39,7 +39,7 @@ void gen(string filename, int maxn, int maxc, bool hasx) {
             cerr << "Fail #" << i << ".\n";
         }
     }
-    auto w = Array::random(n, 1, maxw);
+    auto w = Array::random(k, 1, maxw);
 
     ofstream fout(filename);
     fout << n << ' ' << k << '\n';
