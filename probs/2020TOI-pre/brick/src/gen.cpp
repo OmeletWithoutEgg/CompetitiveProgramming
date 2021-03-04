@@ -1,5 +1,6 @@
 #include "jngen.h"
 #include <iostream>
+#include <cassert>
 using namespace std;
 
 template <typename ...T> string format(const char *s, T &&...args) {
@@ -39,6 +40,7 @@ void gen(string filename, int maxn, int maxc, bool hasx) {
             cerr << "Fail #" << i << ".\n";
         }
     }
+    assert( succ );
     auto w = Array::random(k, 1, maxw);
 
     ofstream fout(filename);
