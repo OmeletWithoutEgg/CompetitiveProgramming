@@ -5,7 +5,7 @@ rm tests/*
 g++ src/gen.cpp -o gen -std=c++17 -Wall -Wextra && ./gen 712222 -o tests/
 
 cat src/sample-1.in >tests/00.in
-cat src/sample-2.in >tests/01.in
+cat src/sample-2.in >tests/20.in
 
 g++ src/sol.cpp -o sol -std=c++17 -Wall -Wextra -Dlocal -fsanitize=undefined -fsanitize=address -Ofast
 
