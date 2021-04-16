@@ -26,117 +26,109 @@ template <typename T> void danb(const char *s, T L, T R) {
 using namespace std;
 using ll = int64_t;
 template <typename T> using max_heap = priority_queue<T, vector<T>, less<T>>;
-const int maxn = 100025;
-const long long inf = 1000000001;
-const int prs[4] = {2, 3, 5, 7};
-int bp[1 << 4];
+const int maxn = 500025, maxq = 100025;
+const ll INF = 3e18;
 
-int square_free(int x) {
-    for (int p: prs)
-        while (x % (p*p) == 0)
-            x /= p;
-    return x;
+struct Point {
+    int x, y, id;
+} p[maxn];
+int u[maxn];
+
+void buildConvexHull(vector<int> &v) {
+    static const auto check = [](int a, int b, int c) {
+        ll x1 = p[b].x - p[a].x, y1 = p[b].y - p[a].y;
+        ll x2 = p[c].x - p[b].x, y2 = p[c].y - p[b].y;
+        return x1 * y2 - x2 * y1 >= 0;
+    };
+    size_t j = 0;
+    for (size_t i = 0; i < v.size(); i++) {
+        while (j >= 2 && check(v[j-2], v[j-1], v[i]))
+            --j;
+        v[j++] = v[i];
+    }
+    v.resize(j);
 }
-int mul(int a, int b) {
-    return min(inf, 1LL*a*b);
+
+tuple<ll,int,int> queryConvexHull(vector<int> &v, int w, int h) {
+    tuple<ll,int,int> ans(-INF, 0, -1);
+    if (v.empty()) return ans;
+    auto f = [&](int i) {
+        auto [x, y, id] = p[i];
+        return tuple<ll,int,int>(1LL * w * y - 1LL * h * x, x, id);
+    };
+    while (v.size() >= 2 && f(v.rbegin()[0]) <= f(v.rbegin()[1])) v.pop_back();
+    return f(v.back());
 }
-int cnt[101];
-int calc(int L) {
-    vector<int> has;
-    for (int j = 1; j <= 100; j++) if (cnt[j]) has.push_back(j);
-    int ans = 0;
-    for (int s = 0, U = (1<<4)-1; s < (1<<4); s++) {
-        bool fail = false;
-        int prod = 1;
-        bool inProd[100] = {};
-        for (int j: has) {
-            bool coprime = (__gcd(j, bp[U ^ s]) == 1);
-            if (coprime) {
-                int bigPart = j / __gcd(j, 2 * 3 * 5 * 7);
-                if (bigPart == 1) {
-                    prod = inf;
-                    break;
-                } else {
-                    if (!inProd[bigPart])
-                        prod = mul(prod, bigPart);
-                    inProd[bigPart] = true;
-                }
-            }
-        }
-        int M = L / bp[U ^ s] / prod;
-        if (M == 0) continue;
-        for (int m = s; ; m = (m-1) & s) {
-            int coef = __builtin_parity(m) ? -1 : 1;
-            ans += coef * (M / bp[m]);
-            if (!m) break;
+
+struct Segtree {
+    int n;
+    vector<int> st[maxn * 2];
+    void build(int _n) {
+        n = _n;
+        for (int i = 0; i < n; i++)
+            st[i+n].push_back(i);
+        for (int i = n-1; i > 0; i--) {
+            st[i].resize(st[i<<1].size() + st[i<<1|1].size());
+            merge(all(st[i<<1]), all(st[i<<1|1]), st[i].begin(), [](int a, int b){ return a < b; });
+            buildConvexHull(st[i]);
         }
     }
-
-#ifdef local
-    int c = 0;
-    for (int i = 1; i <= L; i++) {
-        bool ok = true;
-        for (int j: has)
-            if (__gcd(j, i) == 1)
-                ok = false;
-        if (ok)
-            ++c;
+    int query(int l, int r, int w, int h) {
+        tuple<ll,int,int> res(-INF, 0, -1);
+        for (l += n, r += n; l < r; l >>= 1, r >>= 1) {
+            if (l & 1) res = max(res, queryConvexHull(st[l++], w, h));
+            if (r & 1) res = max(res, queryConvexHull(st[--r], w, h));
+        }
+        return get<2>(res);
     }
-    pary(all(has));
-    debug(ans, L, c);
-#endif // local
+} sgt;
 
-    return ans;
-}
+struct Query {
+    int l, r, w, h;
+    int qid;
+} qs[maxq];
+
+int ans[maxq];
+
 signed main() {
-    for (int s = 0; s < (1<<4); s++) {
-        bp[s] = 1;
-        for (int i = 0; i < 4; i++) if (s >> i & 1) bp[s] *= prs[i];
-    }
     ios_base::sync_with_stdio(0), cin.tie(0);
-    int n, m;
-    assert( cin >> n >> m );
-    vector<pair<int,int>> evt;
-    for (int i = 0; i < m; i++) {
-        int l, r, x;
-        assert( cin >> l >> r >> x );
-        assert( 1 <= l && l <= r && r <= n );
-        assert( 1 <= x && x <= 100 );
-        x = square_free(x);
-        --l;
-        evt.emplace_back(l, x);
-        evt.emplace_back(r, -x);
-    }
-    evt.emplace_back(0, 0);
-    evt.emplace_back(n, 0);
-    sort(all(evt));
-    int ans = 0;
-    for (int i = 0, j = 0; i < evt.size(); i = j) {
-        for (j = i; j < evt.size(); j++) {
-            if (evt[j].first != evt[i].first) break;
-            int x = evt[j].second;
-            if (x > 0) {
-                ++cnt[x];
-            } else if (x < 0) {
-                --cnt[-x];
+    int n;
+    cin >> n;
+    for (int i = 0; i < n; i++)
+        cin >> p[i].x >> p[i].y, p[i].id = i+1;
+    sort(p, p+n, [](Point a, Point b){ return a.x < b.x; });
+
+    {
+        int j = 0;
+        for (int i = 0; i < n; i++) {
+            if (!i || p[i].x != p[i-1].x) {
+                p[j++] = p[i];
+            } else if (p[j-1].y < p[i].y) {
+                p[j-1] = p[i];
             }
         }
-        if (j == evt.size()) continue;
-        int l = evt[i].first;
-        int r = evt[j].first;
-        int cur = calc(r) - calc(l);
-        ans += cur;
-        debug(l, r, cur);
+        n = j;
     }
-    cout << ans << '\n';
+    for (int i = 0; i < n; i++) u[i] = p[i].x;
+
+    sgt.build(n);
+
+    int q;
+    cin >> q;
+    for (int i = 0; i < q; i++) {
+        int a, w, h;
+        cin >> a >> w >> h;
+        int l = lower_bound(u, u+n, a) - u;
+        int r = lower_bound(u, u+n, a+w+1) - u;
+        qs[i] = { l, r, w, h, i };
+    }
+    sort(qs, qs+q, [](Query a, Query b) {
+        return 1LL * a.w * b.h > 1LL * a.h * b.w;
+    });
+    for (int i = 0; i < q; i++) {
+        auto [l, r, w, h, qid] = qs[i];
+        ans[qid] = sgt.query(l, r, w, h);
+    }
+    for (int i = 0; i < q; i++)
+        cout << ans[i] << '\n';
 }
-
-/*
-15 2
-1 15 3
-1 15 15
-
-10000 2
-1 10000 22
-1 10000 33
- */
