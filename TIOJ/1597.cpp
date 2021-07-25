@@ -1,5 +1,6 @@
 #pragma GCC optmize("Ofast")
 #include <bits/stdc++.h>
+#include <bits/extc++.h>
 #ifdef local
 #define safe cerr<<__PRETTY_FUNCTION__<<" line "<<__LINE__<<" safe\n"
 #define debug(args...) qqbx(#args, args)
@@ -15,7 +16,7 @@ template <typename ...T> void qqbx(const char *s, T ...args) {
 #define all(v) begin(v),end(v)
 
 using namespace std;
-template <typename T> using min_heap = priority_queue<T, vector<T>, greater<T>>;
+template <typename T> using min_heap = __gnu_pbds::priority_queue<T, greater<T>>;
 using ll = long long;
 using ld = double;
 using pll = pair<ll,ll>;
@@ -24,12 +25,14 @@ struct Dijkstra {
     vector<vector<tuple<ll,ll,int>>> g;
     vector<ll> dis;
     vector<ll> slope;
-    vector<bool> vis;
-    Dijkstra(size_t n) : g(n), dis(n), slope(n), vis(n) {}
+    vector<int> vis;
+    vector<min_heap<pair<ll,int>>::point_iterator> iter;
+    Dijkstra(size_t n) : g(n), dis(n), slope(n), vis(n), iter(n, nullptr) {}
     void addEdge(int a, int b, ll c, ll p) {
         g[a].pb(c, p, b);
     }
     pll shortestPath(int s, int t, int T) {
+        fill(all(iter), nullptr);
         fill(all(dis), -1);
         fill(all(vis), false);
         min_heap<pair<ll,int>> pq;
@@ -47,7 +50,10 @@ struct Dijkstra {
                 if(dis[j] == -1 || dis[j] > d + w) {
                     dis[j] = d+w;
                     slope[j] = slope[i] + p;
-                    pq.push({dis[j], j});
+                    if (iter[j] == nullptr)
+                        iter[j] = pq.push({dis[j], j});
+                    else
+                        pq.modify(iter[j], {dis[j], j});
                 }
             }
         }
