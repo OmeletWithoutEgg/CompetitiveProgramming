@@ -1,18 +1,37 @@
-#include <bits/stdc++.h>
-using namespace std;
-using ld = long double;
-const int maxn = 200000 + 5;
-const int inf = 1e9;
-const ld pi = acos(-1);
-
-
-int main() {
-    ios_base::sync_with_stdio(false);
-    cin.tie(nullptr);
-    int x = 710;
-    for (int i = 0; i < 50000; i++) {
-        if (!(sin((i-1) * x) < sin(i * x)))
-            cout << i << endl;
-        cout << sin(i * x) << endl;
-    }
+#ifdef TAIL
 }
+#else
+#ifndef HEAD
+#define HEAD
+#include <iostream>
+int main() {
+#include "tmp.cpp"
+#else
+
+#ifndef F1
+#define F1
+#include "tmp.cpp"
+#include "tmp.cpp"
+#define TAIL
+#include "tmp.cpp"
+#undef F1
+#else
+#ifndef F2
+#define F2
+#include "tmp.cpp"
+#include "tmp.cpp"
+#undef F2
+#else
+#ifndef F3
+#define F3
+#include "tmp.cpp"
+#include "tmp.cpp"
+#undef F3
+#else
+std::cout << "!!!" << std::endl;
+#endif // !F3
+#endif // !F2
+#endif // !F1
+
+#endif // !HEAD
+#endif // TAIL
