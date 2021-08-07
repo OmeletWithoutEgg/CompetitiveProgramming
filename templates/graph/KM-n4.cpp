@@ -1,8 +1,5 @@
-#include <bits/stdc++.h>
-
-using namespace std;
-const int N = 102, inf = 1e9;
-
+// constant: N, inf
+// usage: init(n) -> addEdge(x, y, c) -> solve()
 struct KuhnMunkres {
     int g[N][N];
     int lx[N], ly[N];
@@ -57,18 +54,3 @@ struct KuhnMunkres {
         return ans;
     }
 } KM;
-signed main() {
-    ios_base::sync_with_stdio(0), cin.tie(0);
-    int n;
-    while(cin >> n && n) {
-        KM.init(n);
-        for(int i = 0; i < n; i++) {
-            for(int j = 0; j < n; j++) {
-                int c;
-                cin >> c;
-                KM.addEdge(i, j, c);
-            }
-        }
-        cout << KM.solve() << '\n';
-    }
-}

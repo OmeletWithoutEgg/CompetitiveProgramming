@@ -9,7 +9,7 @@ struct PalindromeTree {
         node *fail, *ch[K];
         node(int len, node *fail = nullptr) : len(len), fail(fail) { for(int i = 0; i < K; i++) ch[i] = nullptr; }
     } *root, *last, *zero;
-    void init(const string &s) {
+    void build(const string &s) {
         root = new node(-1);
         zero = last = new node(0, root);
         root->fail = root;
@@ -42,5 +42,5 @@ signed main() {
     cout << se.size() << '\n';
     //for(auto &&s: se) cout << s << ' '; cout << '\n'
     cout << "---\n";*/
-    PT.init(s);
+    PT.build(s);
 }

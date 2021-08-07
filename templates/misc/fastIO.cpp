@@ -20,13 +20,13 @@ struct FastOut {
     constexpr static int B = 1 << 20;
     static char buf[B];
     int q;
-    inline void writeln(int x) {
+    inline void writeint(int x, char sep = '\n') {
         static char stk[20];
         char p = 0;
         if(!x) stk[p++] = '0';
         while(x) stk[p++] = x%10^'0', x/=10;
         while(p) buf[q++] = stk[--p];
-        buf[q++] = '\n';
+        buf[q++] = sep;
         if(q + 20 >= B) fwrite(buf, 1, q, stdout), q = 0;
     }
     ~FastOut() {

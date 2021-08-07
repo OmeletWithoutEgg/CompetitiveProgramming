@@ -1,4 +1,3 @@
-
 struct MCMF {
     struct Edge {
         int to;

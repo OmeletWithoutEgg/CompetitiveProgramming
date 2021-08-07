@@ -98,8 +98,8 @@ constexpr inline ll cdiv(ll x, ll m) { return x/m + (x%m ? (x<0) ^ (m>0) : 0); }
 constexpr inline ll modpow(ll e,ll p,ll m) { ll r=1; for(e%=m;p;p>>=1,e=e*e%m) if(p&1) r=r*e%m; return r; }
 
 constexpr ld PI = acos(-1), eps = 1e-7;
-constexpr ll N = 500025, INF = 1e18, MOD = 1000000007, K = 14699, inf = 1e9;
-using Mint = Modular<int, MOD>;
+constexpr ll maxn = 500025, INF = 1e18, mod = 1000000007, K = 14699, inf = 1e9;
+using Mint = Modular<int, mod>;
 Mint modpow(Mint e, uint64_t p) { Mint r = 1; while(p) (p&1) && (r *= e), e *= e, p >>= 1; return r; } // 0^0 = 1
 
 signed main() {

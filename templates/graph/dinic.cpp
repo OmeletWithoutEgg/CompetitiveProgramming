@@ -1,14 +1,15 @@
+template <typename flow_t>
 struct Dinic {
     struct Edge {
         int to;
-        int64_t rest;
-        Edge(int t, int64_t r) : to(t), rest(r) {}
+        flow_t rest;
+        Edge(int t, flow_t r) : to(t), rest(r) {}
     };
     vector<Edge> E;
     vector<vector<int>> g;
     vector<int> dis, cur;
     Dinic(int n) : g(n), dis(n), cur(n) {}
-    void addEdge(int a, int b, int64_t cap) {
+    void addEdge(int a, int b, flow_t cap) {
         g[a].pb(E.size()), E.pb(b, cap);
         g[b].pb(E.size()), E.pb(a, 0);
     }
@@ -26,13 +27,13 @@ struct Dinic {
         }
         return dis[t] != -1;
     }
-    int64_t dfs(int i, int t, int64_t lim) {
+    flow_t dfs(int i, int t, flow_t lim) {
         if(i == t) return lim;
-        int64_t ans = 0;
+        flow_t ans = 0;
         while(lim && cur[i] < int(g[i].size())) {
             int id = g[i][cur[i]++];
             if(dis[E[id].to] != dis[i] + 1) continue;
-            int f = dfs(E[id].to, t, min(lim, E[id].rest));
+            flow_t f = dfs(E[id].to, t, min(lim, E[id].rest));
             lim -= f;
             ans += f;
             E[id].rest -= f;
@@ -40,11 +41,11 @@ struct Dinic {
         }
         return ans;
     }
-    int64_t maxFlow(int s, int t) {
-        int64_t ans = 0;
+    flow_t maxFlow(int s, int t) {
+        flow_t ans = 0;
         while(bfs(s, t)) {
             fill(cur.begin(), cur.end(), 0);
-            while(int64_t f = dfs(s, t, 1e18)) ans += f;
+            while(flow_t f = dfs(s, t, numeric_limits<flow_t>::max())) ans += f;
         }
         return ans;
     }

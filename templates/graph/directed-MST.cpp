@@ -7,7 +7,7 @@ struct DirectedMST {
     vector<Edge> Edges;
     void clear() { Edges.clear(); }
     void addEdge(int a, int b, int w) {
-        Edges.pb(a, b, w);
+        Edges.emplace_back(a, b, w);
     }
     int solve(int root, int n) {
         vector<Edge> E = Edges;
