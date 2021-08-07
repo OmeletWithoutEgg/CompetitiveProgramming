@@ -18,12 +18,14 @@ const int64_t INF = 1e18;
 
 signed main() {
     ios_base::sync_with_stdio(0), cin.tie(0);
-    int T = 10;
-    cout << T << '\n';
-    int n = 2000;
-    for (int i = 0; i < T; i++) {
-        cout << n << '\n';
-        for (int i = 0; i < n; i++)
-            cout << 1 << (i+1==n ? '\n' : ' ');
+    int n = 4;
+    cout << n << '\n';
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            cout << rand() << (j+1==n ? '\n' : ' ');
+        }
     }
+    for (int i = 0; i < n; i++)
+        for (int j = 0; j < n; j++)
+            cout << rand() << (j+1==n ? '\n' : ' ');
 }
