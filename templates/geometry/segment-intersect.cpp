@@ -3,18 +3,19 @@
 using namespace std;
 
 typedef __int128 C;
-typedef complex<C> point;
+typedef complex<C> Point;
 struct Segment {
-    point S, L;
+    Point S, L;
     static bool valid(C p, C q) {
+        // check if exists x s.t. 0 <= x <= 1 && qx == p
         if(q == 0) return p == 0;
         if(q < 0) q = -q, p = -p;
         return 0 <= p && p <= q;
     }
 };
-bool intersect(Segment A, point P) {
+bool intersect(Segment A, Point P) {
     // A.S + t A.L = P
-    if(A.L == point{0}) return P == A.S;
+    if(A.L == Point{0}) return P == A.S;
     return (imag((P - A.S) * conj(A.L)) == 0) && Segment::valid(real((P - A.S) * conj(A.L)), real(A.L * conj(A.L)));
 }
 bool intersect(Segment A, Segment B) {
@@ -27,10 +28,10 @@ bool intersect(Segment A, Segment B) {
     return Segment::valid(imag((A.S - B.S) * conj(A.L)), imag(B.L * conj(A.L)))
         && Segment::valid(imag((B.S - A.S) * conj(B.L)), imag(A.L * conj(B.L)));
 }
-istream& operator>>(istream &I, point &p) {
+istream& operator>>(istream &I, Point &p) {
     int64_t x, y;
     I >> x >> y;
-    p = point(x, y);
+    p = Point(x, y);
     return I;
 }
 signed main() {
@@ -38,7 +39,7 @@ signed main() {
     int t;
     cin >> t;
     while(t--) {
-        point p1, p2, q1, q2;
+        Point p1, p2, q1, q2;
         cin >> p1 >> p2 >> q1 >> q2;
         Segment P {p1, p2 - p1};
         Segment Q {q1, q2 - q1};

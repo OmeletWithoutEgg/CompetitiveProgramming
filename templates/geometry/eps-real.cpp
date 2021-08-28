@@ -2,7 +2,7 @@
 struct Real {
     ld x;
     Real() = default;
-    template <typename U> Real(U u) : x(u) {}
+    Real(ld _x) : x(_x) {}
     ld operator()() const { return x; }
 #define REFOP(type) Real & operator type(const Real &rhs){ return x type rhs.x, *this; }
     REFOP(+=) REFOP(-=) REFOP(*=) REFOP(/=)
