@@ -10,8 +10,8 @@ struct Dinic {
     vector<int> dis, cur;
     Dinic(int n) : g(n), dis(n), cur(n) {}
     void addEdge(int a, int b, flow_t cap) {
-        g[a].pb(E.size()), E.pb(b, cap);
-        g[b].pb(E.size()), E.pb(a, 0);
+        g[a].emplace_back(E.size()), E.emplace_back(b, cap);
+        g[b].emplace_back(E.size()), E.emplace_back(a, 0);
     }
     bool bfs(int s, int t) {
         fill(dis.begin(), dis.end(), -1);
