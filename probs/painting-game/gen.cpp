@@ -3,7 +3,7 @@
 using namespace std;
 const int inf = 1e9;
 
-int seed = 520920319;
+int seed = 52920319;
 mt19937_64 rng(seed);
 int64_t gi(int64_t l, int64_t r){ return uniform_int_distribution<int64_t>(l, r)(rng); };
 
