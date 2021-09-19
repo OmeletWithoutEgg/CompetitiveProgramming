@@ -17,12 +17,11 @@ const int64_t INF = 1e18;
 
 signed main() {
     ios_base::sync_with_stdio(0), cin.tie(0);
-    int n = 10;
-    mt19937 rng;
-    cout << n << endl;
-    for (int i = 0; i < n; i++) {
-        int x = uniform_int_distribution<int>(1, 999)(rng);
-        int y = uniform_int_distribution<int>(1, 999)(rng);
-        cout << "0." << x << " 0." << y << endl;
-    }
+    mt19937 rng(18392);
+    const int n = 100;
+    const int R = 32;
+    const int C = 10000;
+    cout << n << ' ' << R << '\n';
+    for (int i = 0; i < n; i++)
+        cout << uniform_int_distribution<int>(1, C)(rng) << (i+1==n ? '\n' : ' ');
 }
