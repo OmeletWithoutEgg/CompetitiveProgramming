@@ -2,8 +2,7 @@ struct MCMF {
     struct Edge {
         int to;
         int64_t rest, cost;
-        Edge (int a, int64_t b, int64_t c)
-            : to(a), rest(b), cost(c) {}
+        Edge(int a, int64_t b, int64_t c) : to(a), rest(b), cost(c) {}
     };
     vector<Edge> E;
     vector<int> g[maxn];
@@ -22,38 +21,36 @@ struct MCMF {
         E.emplace_back(x, 0, -cost);
     }
     void dagdp(int s) {
-        fill(dis, dis+n, INF);
+        fill(dis, dis + n, INF);
         dis[s] = 0;
         vector<int> indeg(n);
         for (int i = 0; i < n; i++)
-            for (int id: g[i])
-                if (E[id].rest != 0)
-                    indeg[E[id].to] += 1;
+            for (int id : g[i])
+                if (E[id].rest != 0) indeg[E[id].to] += 1;
         queue<int> que;
         que.push(s);
         while (!que.empty()) {
-            int i = que.front(); que.pop();
-            for (int id: g[i]) {
-                if (E[id].rest == 0)
-                    continue;
+            int i = que.front();
+            que.pop();
+            for (int id : g[i]) {
+                if (E[id].rest == 0) continue;
                 int j = E[id].to;
                 int64_t d = E[id].cost;
                 dis[j] = min(dis[j], dis[i] + d);
-                if (--indeg[j] == 0)
-                    que.push(j);
+                if (--indeg[j] == 0) que.push(j);
             }
         }
         orange(all(indeg));
-        for (int i = 0; i < n; i++)
-            P[i] = dis[i];
+        for (int i = 0; i < n; i++) P[i] = dis[i];
     }
     bool dijkstra(int s, int t) {
-        fill(dis, dis+n, INF);
-        min_heap<pair<int64_t,int>> pq;
+        fill(dis, dis + n, INF);
+        min_heap<pair<int64_t, int>> pq;
         pq.emplace(dis[s] = 0, s);
         while (!pq.empty()) {
-            auto [d, i] = pq.top(); pq.pop();
-            for (int id: g[i]) {
+            auto [d, i] = pq.top();
+            pq.pop();
+            for (int id : g[i]) {
                 if (E[id].rest == 0) continue;
                 int j = E[id].to;
                 int64_t d = E[id].cost;
@@ -66,25 +63,24 @@ struct MCMF {
         }
         return dis[t] != INF;
     }
-    pair<int64_t,int64_t> flow(int s, int t) {
+    pair<int64_t, int64_t> flow(int s, int t) {
         int64_t ans = 0, cost = 0;
         // dagdp(s);
         while (dijkstra(s, t)) {
             int64_t mn = INF;
-            for (int v = t; v != s; v = E[prv[v]^1].to)
+            for (int v = t; v != s; v = E[prv[v] ^ 1].to)
                 mn = min(mn, E[prv[v]].rest);
-            for (int v = t; v != s; v = E[prv[v]^1].to) {
-                //debug(v);
+            for (int v = t; v != s; v = E[prv[v] ^ 1].to) {
+                // debug(v);
                 E[prv[v]].rest -= mn;
-                E[prv[v]^1].rest += mn;
+                E[prv[v] ^ 1].rest += mn;
             }
             ans += mn;
             cost += mn * (dis[t] - P[s] + P[t]);
-            for (int i = 0; i < n; i++)
-                P[i] += dis[i];
+            for (int i = 0; i < n; i++) P[i] += dis[i];
         }
         debug(ans);
-        //debug(ans), debug(cost);
-        return { ans, cost };
+        // debug(ans), debug(cost);
+        return {ans, cost};
     }
 } mcmf;

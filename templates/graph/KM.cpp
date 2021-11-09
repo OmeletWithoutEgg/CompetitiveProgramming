@@ -9,10 +9,16 @@ struct KuhnMunkres {
     vector<vector<weight_t>> g;
     vector<weight_t> lx, ly, slack;
     vector<int> match, visx, visy;
-    KuhnMunkres(int n) : n(n), g(n, vector<weight_t>(n)), lx(n), ly(n), slack(n), match(n), visx(n), visy(n) {}
-    void addEdge(int a, int b, weight_t c) {
-        g[a][b] = max(g[a][b], c);
-    }
+    KuhnMunkres(int n)
+        : n(n),
+          g(n, vector<weight_t>(n)),
+          lx(n),
+          ly(n),
+          slack(n),
+          match(n),
+          visx(n),
+          visy(n) {}
+    void addEdge(int a, int b, weight_t c) { g[a][b] = max(g[a][b], c); }
     bool dfs(int i, bool aug) {
         if (visx[i]) return false;
         visx[i] = true;
@@ -22,8 +28,7 @@ struct KuhnMunkres {
             if (d == 0) {
                 visy[j] = true;
                 if (match[j] == -1 || dfs(match[j], aug)) {
-                    if (aug)
-                        match[j] = i;
+                    if (aug) match[j] = i;
                     return true;
                 }
             } else {
@@ -41,21 +46,25 @@ struct KuhnMunkres {
             fill(visx.begin(), visx.end(), false);
             fill(visy.begin(), visy.end(), false);
             auto augment = [&]() -> bool {
-                for (int j = 0; j < n; j++) if (!visy[j] && slack[j] == 0) {
-                    visy[j] = true;
-                    if (match[j] == -1 || dfs(match[j], false)) {
-                        return true;
+                for (int j = 0; j < n; j++)
+                    if (!visy[j] && slack[j] == 0) {
+                        visy[j] = true;
+                        if (match[j] == -1 || dfs(match[j], false)) {
+                            return true;
+                        }
                     }
-                }
                 return false;
             };
             auto relabel = [&]() -> void {
                 weight_t d = inf;
-                for (int j = 0; j < n; j++) if (!visy[j]) d = min(d, slack[j]);
+                for (int j = 0; j < n; j++)
+                    if (!visy[j]) d = min(d, slack[j]);
                 for (int i = 0; i < n; i++) {
                     if (visx[i]) lx[i] -= d;
-                    if (visy[i]) ly[i] += d;
-                    else slack[i] -= d;
+                    if (visy[i])
+                        ly[i] += d;
+                    else
+                        slack[i] -= d;
                 }
             };
             if (dfs(i, true)) continue;

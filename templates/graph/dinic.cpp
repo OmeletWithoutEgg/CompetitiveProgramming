@@ -18,35 +18,37 @@ struct Dinic {
         queue<int> q;
         dis[s] = 0;
         q.push(s);
-        while(!q.empty()) {
-            int i = q.front(); q.pop();
-            for(int id: g[i]) if(E[id].rest > 0 && dis[E[id].to] == -1) {
-                dis[E[id].to] = dis[i] + 1;
-                q.push(E[id].to);
-            }
+        while (!q.empty()) {
+            int i = q.front();
+            q.pop();
+            for (int id : g[i])
+                if (E[id].rest > 0 && dis[E[id].to] == -1) {
+                    dis[E[id].to] = dis[i] + 1;
+                    q.push(E[id].to);
+                }
         }
         return dis[t] != -1;
     }
     flow_t dfs(int i, int t, flow_t lim) {
-        if(i == t) return lim;
+        if (i == t) return lim;
         flow_t ans = 0;
-        while(lim > 0 && cur[i] < int(g[i].size())) {
+        while (lim > 0 && cur[i] < int(g[i].size())) {
             int id = g[i][cur[i]++];
-            if(dis[E[id].to] != dis[i] + 1) continue;
+            if (dis[E[id].to] != dis[i] + 1) continue;
             flow_t f = dfs(E[id].to, t, min(lim, E[id].rest));
             lim -= f;
             ans += f;
             E[id].rest -= f;
-            E[id^1].rest += f;
+            E[id ^ 1].rest += f;
         }
         return ans;
     }
     static constexpr flow_t inf = numeric_limits<flow_t>::max();
     flow_t maxFlow(int s, int t) {
         flow_t ans = 0, f;
-        while(bfs(s, t)) {
+        while (bfs(s, t)) {
             fill(cur.begin(), cur.end(), 0);
-            while((f = dfs(s, t, inf)) > 0) ans += f;
+            while ((f = dfs(s, t, inf)) > 0) ans += f;
         }
         return ans;
     }

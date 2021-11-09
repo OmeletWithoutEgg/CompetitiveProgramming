@@ -8,27 +8,30 @@ struct Segment {
     Point S, L;
     static bool valid(C p, C q) {
         // check if exists x s.t. 0 <= x <= 1 && qx == p
-        if(q == 0) return p == 0;
-        if(q < 0) q = -q, p = -p;
+        if (q == 0) return p == 0;
+        if (q < 0) q = -q, p = -p;
         return 0 <= p && p <= q;
     }
 };
 bool intersect(Segment A, Point P) {
     // A.S + t A.L = P
-    if(A.L == Point{0}) return P == A.S;
-    return (imag((P - A.S) * conj(A.L)) == 0) && Segment::valid(real((P - A.S) * conj(A.L)), real(A.L * conj(A.L)));
+    if (A.L == Point{0}) return P == A.S;
+    return (imag((P - A.S) * conj(A.L)) == 0) &&
+           Segment::valid(real((P - A.S) * conj(A.L)), real(A.L * conj(A.L)));
 }
 bool intersect(Segment A, Segment B) {
     // a + tLa = b + sLb
     // b - a = tLa - sLb
     // (b-a)conj(La) = t(La*conj(La)) - s(Lb*conj(La))
     // s = IM((a-b)conj(La)) / IM(Lb*conj(La))
-    if(imag(A.L * conj(B.L)) == 0)
-        return intersect(A, B.S) || intersect(A, B.S+B.L) || intersect(B, A.S) || intersect(B, A.S+A.L);
-    return Segment::valid(imag((A.S - B.S) * conj(A.L)), imag(B.L * conj(A.L)))
-        && Segment::valid(imag((B.S - A.S) * conj(B.L)), imag(A.L * conj(B.L)));
+    if (imag(A.L * conj(B.L)) == 0)
+        return intersect(A, B.S) || intersect(A, B.S + B.L) ||
+               intersect(B, A.S) || intersect(B, A.S + A.L);
+    return Segment::valid(imag((A.S - B.S) * conj(A.L)),
+                          imag(B.L * conj(A.L))) &&
+           Segment::valid(imag((B.S - A.S) * conj(B.L)), imag(A.L * conj(B.L)));
 }
-istream& operator>>(istream &I, Point &p) {
+istream& operator>>(istream& I, Point& p) {
     int64_t x, y;
     I >> x >> y;
     p = Point(x, y);
@@ -38,11 +41,11 @@ signed main() {
     ios_base::sync_with_stdio(0), cin.tie(0);
     int t;
     cin >> t;
-    while(t--) {
+    while (t--) {
         Point p1, p2, q1, q2;
         cin >> p1 >> p2 >> q1 >> q2;
-        Segment P {p1, p2 - p1};
-        Segment Q {q1, q2 - q1};
+        Segment P{p1, p2 - p1};
+        Segment Q{q1, q2 - q1};
         cout << (intersect(P, Q) ? "Yes\n" : "No\n");
     }
 }
