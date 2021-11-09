@@ -1,12 +1,3 @@
-template <typename T> void buildRoots(complex<T> roots[]) {
-    const T pi = acos(-1);
-    for(int i = 1; i < maxn; i *= 2) {
-        for(int j = 0; j < i; j++) {
-            roots[i + j] = polar<T>(1, pi * j / i);
-        }
-    }
-}
-
 template <typename T>
 void inplace_fft(T F[], int n, bool inv) {
     static T roots[maxn];
@@ -38,4 +29,24 @@ void inplace_fft(T F[], int n, bool inv) {
 template <typename T> vector<T> fft(vector<T> F, bool inv) {
     inplace_fft(F.data(), F.size(), inv);
     return F;
+}
+
+template <typename T> void buildRoots(complex<T> roots[]) {
+    const T pi = acos(-1);
+    for(int i = 1; i < maxn; i *= 2) {
+        for(int j = 0; j < i; j++) {
+            roots[i + j] = polar<T>(1, pi * j / i);
+        }
+    }
+}
+
+
+void buildRoots(Mint roots[]) {
+    const int G = 3;
+    for (int i = 1, s = 0; i < maxn; i *= 2) {
+        ++s;
+        for (int j = 0; j < i; j++) {
+            roots[i + j] = modpow(G, 1LL * j * ((mod - 1) >> s));
+        }
+    }
 }

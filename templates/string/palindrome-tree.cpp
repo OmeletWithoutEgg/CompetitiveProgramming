@@ -2,45 +2,54 @@
 
 using namespace std;
 
-const int K = 26;
+const int K = 26, maxn = 100025;
 struct PalindromeTree {
     struct node {
         int len;
         node *fail, *ch[K];
+        int cnt;
+        node () = default;
         node(int len, node *fail = nullptr) : len(len), fail(fail) { for(int i = 0; i < K; i++) ch[i] = nullptr; }
-    } *root, *last, *zero;
+    };
+    node pool[maxn], *ptr;
+    node *root, *last, *zero;
     void build(const string &s) {
-        root = new node(-1);
-        zero = last = new node(0, root);
+        ptr = pool;
+        root = new (ptr++) node(-1);
         root->fail = root;
-        int cnt = 0;
+        last = zero = new (ptr++) node(0, root);
+        int distinct_cnt = 0;
+        vector<node*> nd(s.size());
         for(int i = 0; i < s.size(); i++) {
             int c = s[i]-'a';
-            while(s[i] != s[i-last->len-1]) last = last->fail;
+            const auto getFail = [&s, i](node *p) {
+                while (i - p->len - 1 < 0 || s[i] != s[i - p->len - 1])
+                    p = p->fail;
+                return p;
+            };
+            last = getFail(last);
             if(last->ch[c] == nullptr) {
-                node *cur = last->fail;
-                while(s[i] != s[i-cur->len-1]) cur = cur->fail;
-                last = last->ch[c] = new node(last->len+2, last==root ? zero : cur->ch[c]);
-                cout << s.substr(i-last->len+1, last->len) << '\n';
-                // cout << last->len << '\n';
-                ++cnt;
-            } else last = last->ch[c];
+                node *cur = getFail(last->fail);
+                last = last->ch[c] = new (ptr++) node(last->len+2, last==root ? zero : cur->ch[c]);
+                ++distinct_cnt;
+            } else
+                last = last->ch[c];
+            last->cnt += 1;
+            nd[i] = last;
         }
-        cout << cnt << '\n';
+        while (ptr != pool) {
+            --ptr;
+            ptr->fail->cnt += ptr->cnt;
+        }
+        for (int i = 0; i < s.size(); i++) {
+            node *p = nd[i];
+            // cerr << p->cnt << ' ' << s.substr(i - p->len + 1, p->len) << endl;
+        }
+        // cout << distinct_cnt << '\n';
     }
 } PT;
 
-/*bool pal(string &&s) {
-    for(int i = 0; i < s.size(); i++) if(s[i] != s[s.size()-1-i]) return false;
-    return true;
-}*/
-
 signed main() {
     string s; cin >> s;
-    /*unordered_set<string> se;
-    for(int i = 0; i < s.size(); i++) for(int j = 1; i+j <= s.size(); j++) if(pal(s.substr(i,j))) se.insert(s.substr(i,j));
-    cout << se.size() << '\n';
-    //for(auto &&s: se) cout << s << ' '; cout << '\n'
-    cout << "---\n";*/
     PT.build(s);
 }

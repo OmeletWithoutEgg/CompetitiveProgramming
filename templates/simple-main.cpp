@@ -25,5 +25,6 @@ template <typename T> void danb(const char *s, T L, T R) {
 using namespace std;
 
 signed main() {
-    ios_base::sync_with_stdio(0), cin.tie(0);
+    ios_base::sync_with_stdio(false);
+    cin.tie(nullptr);
 }
