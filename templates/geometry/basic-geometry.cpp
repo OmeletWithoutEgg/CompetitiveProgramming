@@ -10,8 +10,10 @@ bool operator<(const Point& a, const Point& b) {
 }
 int argCmp(Point a, Point b) {
     // -1 / 0 / 1 <-> < / == / > (atan2)
-    int qa = (imag(a) == 0 ? (real(a) < 0 ? 3 : 1) : (imag(a) < 0 ? 0 : 2));
-    int qb = (imag(b) == 0 ? (real(b) < 0 ? 3 : 1) : (imag(b) < 0 ? 0 : 2));
+    int qa =
+        (imag(a) == 0 ? (real(a) < 0 ? 3 : 1) : (imag(a) < 0 ? 0 : 2));
+    int qb =
+        (imag(b) == 0 ? (real(b) < 0 ? 3 : 1) : (imag(b) < 0 ? 0 : 2));
     if (qa != qb) return sgn(qa - qb);
     return sgn(cross(b, a));
 }

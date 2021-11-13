@@ -37,7 +37,8 @@ T deduce(vector<T> a, int n) {
         for (size_t i = 0; i < a.size(); i++)
             for (size_t j = 0; j < b.size(); j++) c[i + j] += a[i] * b[j];
         for (size_t i = c.size() - 1; i >= s.size(); i--)
-            for (size_t j = 0; j < s.size(); j++) c[i - j - 1] += c[i] * s[j];
+            for (size_t j = 0; j < s.size(); j++)
+                c[i - j - 1] += c[i] * s[j];
         c.resize(s.size());
         return c;
     };

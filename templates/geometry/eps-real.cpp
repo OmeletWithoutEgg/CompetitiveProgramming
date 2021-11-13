@@ -14,10 +14,7 @@ struct Real {
     friend Real operator type(const Real& a, const Real& b) { \
         return a.x type b.x;                                  \
     }
-        VALOP(+) VALOP(-) VALOP(*) VALOP(/) Real
-        operator-() {
-        return -x;
-    }
+    VALOP(+) VALOP(-) VALOP(*) VALOP(/) Real operator-() { return -x; }
 #define CMPOP(caneq, type)                                    \
     friend bool operator type(const Real& a, const Real& b) { \
         return abs(a.x - b.x) < eps ? caneq : a.x type b.x;   \
@@ -25,9 +22,9 @@ struct Real {
     CMPOP(false, <)
     CMPOP(false, >)
     CMPOP(true, ==)
-    CMPOP(true, <=) CMPOP(true, >=) CMPOP(false, !=) friend istream& operator>>(
-        istream& I, Real& f) {
-        return I >> f.x;
-    }
+    CMPOP(true, <=)
+    CMPOP(true, >=)
+    CMPOP(false, !=)
+    friend istream& operator>>(istream& I, Real& f) { return I >> f.x; }
     friend ostream& operator<<(ostream& O, Real f) { return O << f.x; }
 };

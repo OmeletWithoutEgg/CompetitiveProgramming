@@ -17,7 +17,8 @@ bool intersect(Segment A, Point P) {
     // A.S + t A.L = P
     if (A.L == Point{0}) return P == A.S;
     return (imag((P - A.S) * conj(A.L)) == 0) &&
-           Segment::valid(real((P - A.S) * conj(A.L)), real(A.L * conj(A.L)));
+           Segment::valid(real((P - A.S) * conj(A.L)),
+                          real(A.L * conj(A.L)));
 }
 bool intersect(Segment A, Segment B) {
     // a + tLa = b + sLb
@@ -29,7 +30,8 @@ bool intersect(Segment A, Segment B) {
                intersect(B, A.S) || intersect(B, A.S + A.L);
     return Segment::valid(imag((A.S - B.S) * conj(A.L)),
                           imag(B.L * conj(A.L))) &&
-           Segment::valid(imag((B.S - A.S) * conj(B.L)), imag(A.L * conj(B.L)));
+           Segment::valid(imag((B.S - A.S) * conj(B.L)),
+                          imag(A.L * conj(B.L)));
 }
 istream& operator>>(istream& I, Point& p) {
     int64_t x, y;

@@ -29,7 +29,8 @@ struct DirectedMST {
                 ans += in[i];
                 for (int x = i; x != -1 && id[x] == -1; x = prv[x]) {
                     if (vis[x] == i) {
-                        for (int y = prv[x]; y != x; y = prv[y]) id[y] = tot;
+                        for (int y = prv[x]; y != x; y = prv[y])
+                            id[y] = tot;
                         id[x] = tot++;
                         break;
                     }

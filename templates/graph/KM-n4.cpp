@@ -11,7 +11,9 @@ struct KuhnMunkres {
         for (int i = 0; i < n; i++)
             for (int j = 0; j < n; j++) g[i][j] = 0;
     }
-    void addEdge(int a, int b, int weight) { g[a][b] = max(g[a][b], weight); }
+    void addEdge(int a, int b, int weight) {
+        g[a][b] = max(g[a][b], weight);
+    }
     bool dfs(int i) {
         if (visx[i]) return false;
         visx[i] = true;

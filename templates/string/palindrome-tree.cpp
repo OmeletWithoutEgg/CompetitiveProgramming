@@ -46,8 +46,8 @@ struct PalindromeTree {
         }
         for (int i = 0; i < s.size(); i++) {
             node* p = nd[i];
-            // cerr << p->cnt << ' ' << s.substr(i - p->len + 1, p->len) <<
-            // endl;
+            // cerr << p->cnt << ' ' << s.substr(i - p->len
+            // + 1, p->len) << endl;
         }
         // cout << distinct_cnt << '\n';
     }

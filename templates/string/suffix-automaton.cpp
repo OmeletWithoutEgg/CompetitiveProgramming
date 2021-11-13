@@ -1,9 +1,11 @@
 #pragma GCC optimize("Ofast")
 /* #pragma GCC target("sse3","sse2","sse") */
-/* #pragma GCC target("avx","sse4","sse4.1","sse4.2","ssse3") */
+/* #pragma GCC
+ * target("avx","sse4","sse4.1","sse4.2","ssse3") */
 /* #pragma GCC target("f16c") */
 /* #pragma GCC
- * optimize("inline","fast-math","unroll-loops","no-stack-protector") */
+ * optimize("inline","fast-math","unroll-loops","no-stack-protector")
+ */
 #include <cstdio>
 
 using namespace std;
@@ -12,7 +14,8 @@ const int K = 26, N = 20025;
 inline char readchar() {
     constexpr int B = 1 << 16;
     static char buf[B], *p, *q;
-    if (p == q && (q = (p = buf) + fread_unlocked(buf, 1, B, stdin)) == buf)
+    if (p == q &&
+        (q = (p = buf) + fread_unlocked(buf, 1, B, stdin)) == buf)
         return EOF;
     return *p++;
 }

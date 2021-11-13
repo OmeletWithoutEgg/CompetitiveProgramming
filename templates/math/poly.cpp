@@ -144,7 +144,8 @@ struct poly {
         k = min(k, a.size());
         return vector<T>(begin(a) + k, end(a));
     }
-    poly substr(size_t l, size_t r) const {  // return mod_xk(r).div_xk(l)
+    poly substr(size_t l,
+                size_t r) const {  // return mod_xk(r).div_xk(l)
         l = min(l, a.size());
         r = min(r, a.size());
         return vector<T>(begin(a) + l, begin(a) + r);
@@ -186,7 +187,8 @@ struct poly {
             res.push_back(A.back() / b.a.back());
             if (res.back() != T(0)) {
                 for (size_t i = 0; i < b.a.size(); i++) {
-                    A[A.size() - i - 1] -= res.back() * b.a[b.a.size() - i - 1];
+                    A[A.size() - i - 1] -=
+                        res.back() * b.a[b.a.size() - i - 1];
                 }
             }
             A.pop_back();
@@ -195,8 +197,8 @@ struct poly {
         return {res, A};
     }
 
-    pair<poly, poly> divmod(
-        const poly& b) const {  // returns quotiend and remainder of a mod b
+    pair<poly, poly> divmod(const poly& b) const {  // returns quotiend and
+                                                    // remainder of a mod b
         if (deg() < b.deg()) {
             return {poly{0}, *this};
         }
@@ -312,7 +314,8 @@ struct poly {
                          : (*this * *this).mod_xk(n).pow_slow(k / 2, n)
                  : T(1);
     }
-    poly pow(size_t k, size_t n) {  // calculate p^k(n) mod x^n
+    poly pow(size_t k,
+             size_t n) {  // calculate p^k(n) mod x^n
         if (is_zero()) {
             return *this;
         }
@@ -322,7 +325,8 @@ struct poly {
         int i = leading_xk();
         T j = a[i];
         poly t = div_xk(i) / j;
-        return bpow(j, k) * (t.log(n) * T(k)).exp(n).mul_xk(i * k).mod_xk(n);
+        return bpow(j, k) *
+               (t.log(n) * T(k)).exp(n).mul_xk(i * k).mod_xk(n);
     }
     poly mulx(T x) {  // component-wise multiplication with x^k
         T cur = 1;
@@ -333,7 +337,8 @@ struct poly {
         }
         return res;
     }
-    poly mulx_sq(T x) {  // component-wise multiplication with x^{k^2}
+    poly mulx_sq(T x) {  // component-wise multiplication
+                         // with x^{k^2}
         T cur = x;
         T total = 1;
         T xx = x * x;
@@ -345,8 +350,9 @@ struct poly {
         }
         return res;
     }
-    vector<T> chirpz_even(T z,
-                          int n) {  // P(1), P(z^2), P(z^4), ..., P(z^2(n-1))
+    vector<T> chirpz_even(
+        T z,
+        int n) {  // P(1), P(z^2), P(z^4), ..., P(z^2(n-1))
         int m = deg();
         if (is_zero()) {
             return vector<T>(n, 0);
@@ -373,7 +379,8 @@ struct poly {
         }
         return res;
     }
-    vector<T> chirpz(T z, int n) {  // P(1), P(z), P(z^2), ..., P(z^(n-1))
+    vector<T> chirpz(T z,
+                     int n) {  // P(1), P(z), P(z^2), ..., P(z^(n-1))
         auto even = chirpz_even(z, (n + 1) / 2);
         auto odd = mulx(z).chirpz_even(z, n / 2);
         vector<T> ans(n);
@@ -399,7 +406,8 @@ struct poly {
             return A;
         }
     }
-    vector<T> eval(vector<T> x) {  // evaluate polynomial in (x1, ..., xn)
+    vector<T> eval(vector<T> x) {  // evaluate polynomial in
+                                   // (x1, ..., xn)
         int n = x.size();
         if (is_zero()) {
             return vector<T>(n, T(0));
@@ -416,9 +424,10 @@ struct poly {
         } else {
             auto m = l + (r - l) / 2;
             auto my = ly + (ry - ly) / 2;
-            auto A = (*this % tree[2 * v]).inter(tree, 2 * v, l, m, ly, my);
-            auto B =
-                (*this % tree[2 * v + 1]).inter(tree, 2 * v + 1, m, r, my, ry);
+            auto A =
+                (*this % tree[2 * v]).inter(tree, 2 * v, l, m, ly, my);
+            auto B = (*this % tree[2 * v + 1])
+                         .inter(tree, 2 * v + 1, m, r, my, ry);
             return A * tree[2 * v + 1] + B * tree[2 * v];
         }
     }
@@ -434,7 +443,8 @@ poly<T> xk(int k) {  // return x^k
 }
 
 template <typename T>
-T resultant(poly<T> a, poly<T> b) {  // computes resultant of a and b
+T resultant(poly<T> a,
+            poly<T> b) {  // computes resultant of a and b
     if (b.is_zero()) {
         return 0;
     } else if (b.deg() == 0) {
@@ -451,7 +461,8 @@ T resultant(poly<T> a, poly<T> b) {  // computes resultant of a and b
 template <typename iter>
 poly<typename iter::value_type> kmul(
     iter L,
-    iter R) {  // computes (x-a1)(x-a2)...(x-an) without building tree
+    iter R) {  // computes (x-a1)(x-a2)...(x-an) without
+               // building tree
     if (R - L == 1) {
         return vector<typename iter::value_type>{-*L, 1};
     } else {
@@ -461,18 +472,20 @@ poly<typename iter::value_type> kmul(
 }
 template <typename T, typename iter>
 poly<T> build(vector<poly<T>>& res, int v, iter L,
-              iter R) {  // builds evaluation tree for (x-a1)(x-a2)...(x-an)
+              iter R) {  // builds evaluation tree for
+                         // (x-a1)(x-a2)...(x-an)
     if (R - L == 1) {
         return res[v] = vector<T>{-*L, 1};
     } else {
         iter M = L + (R - L) / 2;
-        return res[v] = build(res, 2 * v, L, M) * build(res, 2 * v + 1, M, R);
+        return res[v] =
+                   build(res, 2 * v, L, M) * build(res, 2 * v + 1, M, R);
     }
 }
 template <typename T>
-poly<T> inter(
-    vector<T> x,
-    vector<T> y) {  // interpolates minimum polynomial from (xi, yi) pairs
+poly<T> inter(vector<T> x,
+              vector<T> y) {  // interpolates minimum polynomial from
+                              // (xi, yi) pairs
     int n = x.size();
     vector<poly<T>> tree(4 * n);
     return build(tree, 1, begin(x), end(x))

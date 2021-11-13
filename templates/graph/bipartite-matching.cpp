@@ -9,7 +9,8 @@ struct BipartiteMatching {
         if (vis[x] == now) return false;
         vis[x] = now;
         for (int y : gx[x]) {
-            if (my[y] == -1 || dfs(my[y])) return mx[x] = y, my[y] = x, true;
+            if (my[y] == -1 || dfs(my[y]))
+                return mx[x] = y, my[y] = x, true;
         }
         return false;
     }
