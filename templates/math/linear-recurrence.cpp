@@ -24,7 +24,7 @@ vector<T> BerlekampMassey(vector<T> a) {
     return s;
 }
 template <typename T>
-T deduce(vector<T> a, int n) {
+T deduce(vector<T> a, int64_t n) {
     vector<T> s = BerlekampMassey(a);
     if (s.empty()) return 0;
     debug(s);

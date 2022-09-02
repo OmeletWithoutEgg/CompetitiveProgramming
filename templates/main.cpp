@@ -59,7 +59,7 @@ public:
 #define REFOP(type, expr...) Modular &operator type (const Modular &rhs) { return expr, *this; }
     REFOP(+=, v += rhs.v - MOD, v += MOD & (v >> width)) ; REFOP(-=, v -= rhs.v, v += MOD & (v >> width))
     // fits for MOD^2 <= 9e18
-    REFOP(*=, v = 1LL * v * rhs.v % MOD) ; REFOP(/=, *this *= inverse(rhs.v))
+    REFOP(*=, v = static_cast<T>(1LL * v * rhs.v % MOD)) ; REFOP(/=, *this *= inverse(rhs.v))
 #define VALOP(op) friend Modular operator op (Modular a, const Modular &b) { return a op##= b; }
     VALOP(+) ; VALOP(-) ; VALOP(*) ; VALOP(/)
     Modular operator-() const { return 0 - *this; }
